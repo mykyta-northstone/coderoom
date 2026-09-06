@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Problem, Difficulty } from "@/data/problems";
 import { trackEvent } from "@/lib/analytics";
 import { executeCode, ExecutionResult } from "@/lib/runner/executor";
 import { OutputConsole } from "@/components/editor/OutputConsole";
+import { CollaborativeEditorHandle } from "@/components/editor/CollaborativeEditor";
 import {
   Code2,
   Clock,
@@ -46,6 +47,8 @@ export default function InterviewRoomPage({
   params: Promise<{ roomId: string }>;
 }) {
   const { roomId } = use(params);
+
+  const editorHandleRef = useRef<CollaborativeEditorHandle | null>(null);
 
   const [room, setRoom] = useState<RoomData | null>(null);
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -169,8 +172,11 @@ export default function InterviewRoomPage({
     if (!room) return;
     const interviewerToken = sessionStorage.getItem(`coderoom_interviewer_${roomId}`) || "";
 
+    // Broadcast ended state to all Yjs room participants instantly
+    editorHandleRef.current?.setRoomEnded();
+
     try {
-      const res = await fetch(`/api/rooms/${roomId}`, {
+      const res = await fetch(`/api/rooms/${roomId}/end`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "end", interviewerToken }),
@@ -188,10 +194,16 @@ export default function InterviewRoomPage({
 
   const handleRunCode = async () => {
     if (!room || isExecuting) return;
-    setIsExecuting(true);
+
+    // Broadcast executing status & clear old result
+    editorHandleRef.current?.setExecutingState(true);
+    editorHandleRef.current?.setExecutionResultState(null);
+
     const result = await executeCode(currentCode, room.language);
-    setExecutionResult(result);
-    setIsExecuting(false);
+
+    // Broadcast execution output to all participants
+    editorHandleRef.current?.setExecutionResultState(result);
+    editorHandleRef.current?.setExecutingState(false);
   };
 
   const getDifficultyBadge = (difficulty: Difficulty) => {
@@ -493,6 +505,7 @@ export default function InterviewRoomPage({
           <div className="flex-1 min-h-0">
             {userRole && (
               <CollaborativeEditor
+                ref={editorHandleRef}
                 roomId={roomId}
                 language={room?.language || "typescript"}
                 userName={userName}
@@ -502,6 +515,9 @@ export default function InterviewRoomPage({
                 onConnectionStatusChange={setConnectionStatus}
                 onPresenceChange={setParticipants}
                 onCodeChange={setCurrentCode}
+                onRoomEndedChange={(ended) => setIsEnded(ended)}
+                onExecutionResultChange={(result) => setExecutionResult(result)}
+                onIsExecutingChange={(executing) => setIsExecuting(executing)}
               />
             )}
           </div>
@@ -510,7 +526,10 @@ export default function InterviewRoomPage({
             result={executionResult}
             isRunning={isExecuting}
             onRun={handleRunCode}
-            onClear={() => setExecutionResult(null)}
+            onClear={() => {
+              setExecutionResult(null);
+              editorHandleRef.current?.setExecutionResultState(null);
+            }}
           />
         </section>
       </main>
