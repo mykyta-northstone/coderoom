@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Language must be javascript or typescript" }, { status: 400 });
     }
 
-    const { room, interviewerToken } = createRoom(problemId, language);
+    const { room, interviewerToken } = await createRoom(problemId, language);
 
     return NextResponse.json({
       room: {

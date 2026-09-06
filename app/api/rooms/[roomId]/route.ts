@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ roomId: string }> }
 ) {
   const { roomId } = await params;
-  const room = getRoom(roomId);
+  const room = await getRoom(roomId);
 
   if (!room) {
     return NextResponse.json({ error: "Room not found or expired" }, { status: 404 });
@@ -38,7 +38,7 @@ export async function POST(
     const { action, interviewerToken } = body as { action: string; interviewerToken: string };
 
     if (action === "end") {
-      const success = endRoom(roomId, interviewerToken);
+      const success = await endRoom(roomId, interviewerToken);
       if (!success) {
         return NextResponse.json({ error: "Unauthorized or room not found" }, { status: 403 });
       }

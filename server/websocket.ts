@@ -1,14 +1,25 @@
+import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import * as Y from "yjs";
 import * as syncProtocol from "y-protocols/sync";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
-import { getRoom } from "../lib/rooms/store";
-import { getProblemById } from "../data/problems";
+import crypto from "crypto";
+import { getProblemById, Language } from "../data/problems";
 
 const messageSync = 0;
 const messageAwareness = 1;
+
+export type Room = {
+  id: string;
+  problemId: string;
+  language: Language;
+  createdAt: number;
+  expiresAt: number;
+  ended: boolean;
+  interviewerToken: string;
+};
 
 type RoomState = {
   doc: Y.Doc;
@@ -16,18 +27,166 @@ type RoomState = {
   conns: Map<WebSocket, Set<number>>;
 };
 
+const roomMetaStore = new Map<string, Room>();
 const rooms = new Map<string, RoomState>();
 
-// Support process.env.PORT (Render / Heroku / Cloud) as primary fallback
+function generateRoomId(): string {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const bytes = crypto.randomBytes(9);
+  let result = "";
+  for (let i = 0; i < 9; i++) {
+    result += chars[bytes[i] % chars.length];
+  }
+  return result;
+}
+
+function generateToken(): string {
+  return crypto.randomBytes(16).toString("hex");
+}
+
+function createRoom(problemId: string, language: Language): { room: Room; interviewerToken: string } {
+  const id = generateRoomId();
+  const interviewerToken = generateToken();
+  const now = Date.now();
+  const expiresAt = now + 24 * 60 * 60 * 1000;
+
+  const room: Room = {
+    id,
+    problemId,
+    language,
+    createdAt: now,
+    expiresAt,
+    ended: false,
+    interviewerToken,
+  };
+
+  roomMetaStore.set(id, room);
+  return { room, interviewerToken };
+}
+
+function getRoom(id: string): Room | null {
+  const room = roomMetaStore.get(id);
+  if (!room) return null;
+  if (Date.now() > room.expiresAt) {
+    roomMetaStore.delete(id);
+    return null;
+  }
+  return room;
+}
+
+// HTTP Server for persistent API + WebSockets
 const PORT = process.env.PORT
   ? parseInt(process.env.PORT, 10)
   : process.env.WS_PORT
   ? parseInt(process.env.WS_PORT, 10)
   : 1234;
 
-const wss = new WebSocketServer({ port: PORT });
+const server = http.createServer((req, res) => {
+  // CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-console.log(`[CodeRoom WS] Collaboration server running on port ${PORT}`);
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+
+  // POST /api/rooms -> Create room
+  if (req.method === "POST" && url.pathname === "/api/rooms") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const parsed = JSON.parse(body);
+        const { problemId, language } = parsed;
+        const { room, interviewerToken } = createRoom(problemId, language);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            room: {
+              id: room.id,
+              problemId: room.problemId,
+              language: room.language,
+              createdAt: room.createdAt,
+              expiresAt: room.expiresAt,
+              ended: room.ended,
+            },
+            interviewerToken,
+          })
+        );
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid request payload" }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/rooms/:id -> Get room info
+  const getMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9]+)$/);
+  if (req.method === "GET" && getMatch) {
+    const roomId = getMatch[1];
+    const room = getRoom(roomId);
+    if (!room) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Room not found or expired" }));
+      return;
+    }
+    const problem = getProblemById(room.problemId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        room: {
+          id: room.id,
+          problemId: room.problemId,
+          language: room.language,
+          createdAt: room.createdAt,
+          expiresAt: room.expiresAt,
+          ended: room.ended,
+        },
+        problem,
+      })
+    );
+    return;
+  }
+
+  // POST /api/rooms/:id/end -> End room
+  const endMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9]+)\/end$/);
+  if (req.method === "POST" && endMatch) {
+    const roomId = endMatch[1];
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const parsed = JSON.parse(body);
+        const room = getRoom(roomId);
+        if (!room || room.interviewerToken !== parsed.interviewerToken) {
+          res.writeHead(403, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Unauthorized or room not found" }));
+          return;
+        }
+        room.ended = true;
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, ended: true }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid request payload" }));
+      }
+    });
+    return;
+  }
+
+  res.writeHead(404);
+  res.end();
+});
+
+const wss = new WebSocketServer({ server });
+
+console.log(`[CodeRoom WS & API] Server running on port ${PORT}`);
 
 function getOrCreateRoomState(roomId: string): RoomState {
   let state = rooms.get(roomId);
@@ -39,7 +198,6 @@ function getOrCreateRoomState(roomId: string): RoomState {
     state = { doc, awareness, conns };
     rooms.set(roomId, state);
 
-    // Populate starter code if available
     const roomMeta = getRoom(roomId);
     if (roomMeta) {
       const problem = getProblemById(roomMeta.problemId);
@@ -52,7 +210,6 @@ function getOrCreateRoomState(roomId: string): RoomState {
       }
     }
 
-    // Yjs document update broadcast
     doc.on("update", (update: Uint8Array, origin: any) => {
       const encoder = encoding.createEncoder();
       encoding.writeVarUint(encoder, messageSync);
@@ -66,7 +223,6 @@ function getOrCreateRoomState(roomId: string): RoomState {
       }
     });
 
-    // Awareness update broadcast
     awareness.on("update", ({ added, updated, removed }: any, origin: any) => {
       const changedClients = added.concat(updated, removed);
       const encoder = encoding.createEncoder();
@@ -103,13 +259,11 @@ wss.on("connection", (conn: WebSocket, req) => {
   const controlledIds = new Set<number>();
   conns.set(conn, controlledIds);
 
-  // Send Sync Step 1 to new client
   const syncEncoder = encoding.createEncoder();
   encoding.writeVarUint(syncEncoder, messageSync);
   syncProtocol.writeSyncStep1(syncEncoder, doc);
   send(conn, encoding.toUint8Array(syncEncoder));
 
-  // Send current Awareness state
   if (awareness.getStates().size > 0) {
     const awarenessEncoder = encoding.createEncoder();
     encoding.writeVarUint(awarenessEncoder, messageAwareness);
@@ -154,3 +308,5 @@ wss.on("connection", (conn: WebSocket, req) => {
     );
   });
 });
+
+server.listen(PORT);

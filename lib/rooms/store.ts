@@ -11,7 +11,6 @@ export type Room = {
   interviewerToken: string;
 };
 
-// Global in-memory store for Next.js dev & prod runtime
 const globalRoomStore = globalThis as unknown as {
   codeRoomStore?: Map<string, Room>;
 };
@@ -22,8 +21,13 @@ if (!globalRoomStore.codeRoomStore) {
 
 const roomStore = globalRoomStore.codeRoomStore;
 
+export function getBackendHttpUrl(): string | null {
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+  if (!wsUrl) return null;
+  return wsUrl.replace(/^ws:/, "http:").replace(/^wss:/, "https:");
+}
+
 export function generateRoomId(): string {
-  // Generate random 9-character alphanumeric room ID like a8F2kLm9
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const bytes = crypto.randomBytes(9);
   let result = "";
@@ -37,11 +41,31 @@ export function generateToken(): string {
   return crypto.randomBytes(16).toString("hex");
 }
 
-export function createRoom(problemId: string, language: Language): { room: Room; interviewerToken: string } {
+export async function createRoom(
+  problemId: string,
+  language: Language
+): Promise<{ room: Room; interviewerToken: string }> {
+  const backendUrl = getBackendHttpUrl();
+  if (backendUrl) {
+    try {
+      const res = await fetch(`${backendUrl}/api/rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemId, language }),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.error("[CodeRoom Store] Failed to create room on backend:", err);
+    }
+  }
+
+  // Fallback local memory
   const id = generateRoomId();
   const interviewerToken = generateToken();
   const now = Date.now();
-  const expiresAt = now + 24 * 60 * 60 * 1000; // 24 hours
+  const expiresAt = now + 24 * 60 * 60 * 1000;
 
   const room: Room = {
     id,
@@ -57,7 +81,22 @@ export function createRoom(problemId: string, language: Language): { room: Room;
   return { room, interviewerToken };
 }
 
-export function getRoom(id: string): Room | null {
+export async function getRoom(id: string): Promise<Room | null> {
+  const backendUrl = getBackendHttpUrl();
+  if (backendUrl) {
+    try {
+      const res = await fetch(`${backendUrl}/api/rooms/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.room;
+      }
+      if (res.status === 404) return null;
+    } catch (err) {
+      console.error("[CodeRoom Store] Failed to fetch room from backend:", err);
+    }
+  }
+
+  // Fallback local memory
   const room = roomStore.get(id);
   if (!room) return null;
   if (Date.now() > room.expiresAt) {
@@ -67,12 +106,25 @@ export function getRoom(id: string): Room | null {
   return room;
 }
 
-export function endRoom(id: string, interviewerToken: string): boolean {
-  const room = getRoom(id);
-  if (!room) return false;
-  if (room.interviewerToken !== interviewerToken) {
-    return false; // Unauthorized
+export async function endRoom(id: string, interviewerToken: string): Promise<boolean> {
+  const backendUrl = getBackendHttpUrl();
+  if (backendUrl) {
+    try {
+      const res = await fetch(`${backendUrl}/api/rooms/${id}/end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "end", interviewerToken }),
+      });
+      if (res.ok) return true;
+    } catch (err) {
+      console.error("[CodeRoom Store] Failed to end room on backend:", err);
+    }
   }
+
+  // Fallback local memory
+  const room = roomStore.get(id);
+  if (!room) return false;
+  if (room.interviewerToken !== interviewerToken) return false;
   room.ended = true;
   roomStore.set(id, room);
   return true;
