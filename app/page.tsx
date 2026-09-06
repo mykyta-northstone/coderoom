@@ -27,7 +27,10 @@ export default function LandingPage() {
     trackEvent("landing_view");
   }, []);
 
-  const featuredProblems = PROBLEMS.slice(0, 6);
+  const featuredProblems = [
+    ...PROBLEMS.filter((p) => p.type !== "code_review").slice(0, 4),
+    ...PROBLEMS.filter((p) => p.type === "code_review").slice(0, 2),
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-[#121212] text-[#f4f4f4] font-sans selection:bg-[#cef565] selection:text-[#131313]">
@@ -77,7 +80,7 @@ export default function LandingPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 text-sm font-semibold text-[#c4c4c4] hover:text-white bg-[#1e1e1e] hover:bg-[#252525] border border-[#2e2e2e] rounded-full transition-all"
               >
                 <BookOpen className="w-5 h-5 text-[#9d9d9d]" />
-                <span>Explore 16+ Problems</span>
+                <span>Explore {PROBLEMS.length}+ Problems</span>
               </Link>
             </div>
 
@@ -93,7 +96,7 @@ export default function LandingPage() {
               </span>
               <span className="flex items-center space-x-1.5">
                 <Check className="w-4 h-4 text-[#cef565]" />
-                <span>Instant Code Execution</span>
+                <span>Code Review Tasks & Interviewer Guides</span>
               </span>
               <span className="flex items-center space-x-1.5">
                 <Check className="w-4 h-4 text-[#cef565]" />
@@ -424,7 +427,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-lg font-bold text-white">Select or Type Task</h3>
               <p className="text-xs text-[#9d9d9d] leading-relaxed">
-                Choose from 16 curated JS/TS interview questions (Two Sum, Promise.all, LRU Cache) or type your custom problem prompt.
+                Choose from {PROBLEMS.length}+ curated JS/TS coding challenges &amp; realistic Code Review tasks (N+1 queries, Race conditions) or type your custom problem prompt.
               </p>
             </div>
 
@@ -465,7 +468,7 @@ export default function LandingPage() {
               href="/problems"
               className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#cef565] hover:underline"
             >
-              <span>View All 16 Problems</span>
+              <span>View All {PROBLEMS.length}+ Problems</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -479,9 +482,15 @@ export default function LandingPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono text-[#9d9d9d]">{p.category}</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#cef565]/10 text-[#cef565] border border-[#cef565]/20 uppercase">
-                      {p.difficulty}
-                    </span>
+                    {p.type === "code_review" ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/30">
+                        Code Review
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#cef565]/10 text-[#cef565] border border-[#cef565]/20 uppercase">
+                        {p.difficulty}
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-base font-bold text-white group-hover:text-[#cef565] transition-colors">
                     {p.title}
