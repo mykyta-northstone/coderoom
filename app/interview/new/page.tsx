@@ -5,7 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { PROBLEMS, Language, Problem, Difficulty } from "@/data/problems";
 import { trackEvent } from "@/lib/analytics";
-import { PlusCircle, CheckCircle2, ArrowRight, PenTool, BookOpen } from "lucide-react";
+import {
+  PlusCircle,
+  CheckCircle2,
+  ArrowRight,
+  PenTool,
+  BookOpen,
+  ChevronDown,
+  Search,
+  Code,
+  Check,
+} from "lucide-react";
 
 function CreateInterviewForm() {
   const router = useRouter();
@@ -16,6 +26,7 @@ function CreateInterviewForm() {
   const [problemTypeFilter, setProblemTypeFilter] = useState<"all" | "coding" | "code_review">("all");
   const [language, setLanguage] = useState<Language>("typescript");
   const [problemId, setProblemId] = useState<string>(initialProblemId);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Custom problem form state (simplified)
   const [customTitle, setCustomTitle] = useState("");
@@ -26,6 +37,20 @@ function CreateInterviewForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleTypeFilterChange = (filter: "all" | "coding" | "code_review") => {
+    setProblemTypeFilter(filter);
+    const matching = PROBLEMS.filter((p) =>
+      filter === "all"
+        ? true
+        : filter === "code_review"
+        ? p.type === "code_review"
+        : p.type !== "code_review"
+    );
+    if (matching.length > 0 && !matching.some((p) => p.id === problemId)) {
+      setProblemId(matching[0].id);
+    }
+  };
 
   const selectedProblem = PROBLEMS.find((p) => p.id === problemId) || PROBLEMS[0];
 
@@ -209,8 +234,8 @@ function CreateInterviewForm() {
           <div className="flex items-center space-x-2 text-xs font-semibold">
             <button
               type="button"
-              onClick={() => setProblemTypeFilter("all")}
-              className={`px-3 py-1 rounded-full transition-all ${
+              onClick={() => handleTypeFilterChange("all")}
+              className={`px-3.5 py-1.5 rounded-full transition-all ${
                 problemTypeFilter === "all"
                   ? "bg-[#cef565] text-[#131313] font-bold"
                   : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
@@ -220,8 +245,8 @@ function CreateInterviewForm() {
             </button>
             <button
               type="button"
-              onClick={() => setProblemTypeFilter("coding")}
-              className={`px-3 py-1 rounded-full transition-all ${
+              onClick={() => handleTypeFilterChange("coding")}
+              className={`px-3.5 py-1.5 rounded-full transition-all ${
                 problemTypeFilter === "coding"
                   ? "bg-[#cef565] text-[#131313] font-bold"
                   : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
@@ -231,8 +256,8 @@ function CreateInterviewForm() {
             </button>
             <button
               type="button"
-              onClick={() => setProblemTypeFilter("code_review")}
-              className={`px-3 py-1 rounded-full transition-all ${
+              onClick={() => handleTypeFilterChange("code_review")}
+              className={`px-3.5 py-1.5 rounded-full transition-all ${
                 problemTypeFilter === "code_review"
                   ? "bg-[#7c5cfc] text-white font-bold"
                   : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
@@ -242,24 +267,110 @@ function CreateInterviewForm() {
             </button>
           </div>
 
-          <select
-            value={problemId}
-            onChange={(e) => setProblemId(e.target.value)}
-            className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[16px] px-4 py-3 text-xs text-white focus:outline-none focus:border-[#cef565] transition-colors"
-          >
-            {PROBLEMS.filter((p) =>
-              problemTypeFilter === "all"
-                ? true
-                : problemTypeFilter === "code_review"
-                ? p.type === "code_review"
-                : p.type !== "code_review"
-            ).map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.type === "code_review" ? "🔍 [Code Review] " : "💻 "}
-                {p.title} ({p.difficulty.toUpperCase()}) — {p.category}
-              </option>
-            ))}
-          </select>
+          {/* Custom Styled Problem Picker Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full bg-[#141414] border border-[#2e2e2e] hover:border-[#cef565]/60 rounded-[18px] px-4 py-3 flex items-center justify-between transition-all group text-left shadow-inner"
+            >
+              <div className="flex items-center space-x-3 truncate">
+                <span className="w-7 h-7 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center shrink-0">
+                  {selectedProblem.type === "code_review" ? (
+                    <Search className="w-3.5 h-3.5 text-[#a894ff]" />
+                  ) : (
+                    <Code className="w-3.5 h-3.5 text-[#cef565]" />
+                  )}
+                </span>
+                <div className="truncate">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs font-bold text-white truncate">
+                      {selectedProblem.title}
+                    </span>
+                    {selectedProblem.type === "code_review" && (
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/30">
+                        Code Review
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-[#6a6a6a] truncate">
+                    {selectedProblem.category}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 shrink-0 ml-2">
+                <span className="capitalize text-[10px] font-bold text-[#9d9d9d] px-2.5 py-0.5 rounded-full bg-[#1e1e1e] border border-[#2e2e2e]">
+                  {selectedProblem.difficulty}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-[#9d9d9d] transition-transform ${
+                    isDropdownOpen ? "rotate-180 text-[#cef565]" : ""
+                  }`}
+                />
+              </div>
+            </button>
+
+            {/* Dropdown Menu Popover */}
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-[#181818] border border-[#2e2e2e] rounded-[22px] shadow-2xl p-2 max-h-72 overflow-y-auto space-y-1 backdrop-blur-xl">
+                {PROBLEMS.filter((p) =>
+                  problemTypeFilter === "all"
+                    ? true
+                    : problemTypeFilter === "code_review"
+                    ? p.type === "code_review"
+                    : p.type !== "code_review"
+                ).map((p) => {
+                  const isSelected = p.id === problemId;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        setProblemId(p.id);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`p-3 rounded-[14px] flex items-center justify-between cursor-pointer transition-all ${
+                        isSelected
+                          ? "bg-[#cef565]/10 border border-[#cef565]/30 text-white"
+                          : "hover:bg-[#222222] text-[#c4c4c4]"
+                      }`}
+                    >
+                      <div className="space-y-0.5 truncate pr-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-white truncate">
+                            {p.title}
+                          </span>
+                          {p.type === "code_review" && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/30">
+                              Code Review
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-[#8e8e8e] truncate">
+                          {p.category}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 shrink-0">
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full capitalize ${
+                            p.difficulty === "easy"
+                              ? "bg-[#cef565]/10 text-[#cef565]"
+                              : p.difficulty === "medium"
+                              ? "bg-amber-500/10 text-amber-400"
+                              : "bg-[#f2796b]/10 text-[#f2796b]"
+                          }`}
+                        >
+                          {p.difficulty}
+                        </span>
+                        {isSelected && <Check className="w-4 h-4 text-[#cef565]" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           <div className="p-4 rounded-[16px] bg-[#141414] border border-[#2e2e2e] space-y-1.5">
             <div className="flex items-center justify-between text-xs">
