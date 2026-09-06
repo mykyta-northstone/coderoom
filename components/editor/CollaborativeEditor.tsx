@@ -84,6 +84,11 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
       },
     }));
 
+    const initialCodeRef = useRef(initialCode);
+    useEffect(() => {
+      initialCodeRef.current = initialCode;
+    }, [initialCode]);
+
     const handleEditorDidMount: OnMount = (editor, monaco) => {
       editorRef.current = editor;
       setEditorReady(true);
@@ -190,9 +195,19 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
       // Bind Yjs text to Monaco model
       const ytext = doc.getText("monaco");
 
-      if (ytext.toString() === "" && initialCode) {
-        ytext.insert(0, initialCode);
-      }
+      const insertInitialIfNeeded = () => {
+        if (ytext.toString() === "" && initialCodeRef.current) {
+          ytext.insert(0, initialCodeRef.current);
+        }
+      };
+
+      provider.on("sync", (isSynced: boolean) => {
+        if (isSynced) {
+          insertInitialIfNeeded();
+        }
+      });
+
+      insertInitialIfNeeded();
 
       const model = editorRef.current.getModel();
 
@@ -220,7 +235,7 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
         provider.destroy();
         doc.destroy();
       };
-    }, [editorReady, roomId, userName, userRole, initialCode]);
+    }, [editorReady, roomId, userName, userRole]);
 
     return (
       <div className="h-full w-full overflow-hidden flex flex-col bg-[#0f172a] rounded-t-xl border border-slate-800">
