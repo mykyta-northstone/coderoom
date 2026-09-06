@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: coderoom-ws
+    env: node
+    buildCommand: npm install
+    startCommand: npm run ws
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: WS_PORT
+        value: 10000
