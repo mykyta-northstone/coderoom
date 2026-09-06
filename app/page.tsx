@@ -89,11 +89,11 @@ export default function LandingPage() {
               </span>
               <span className="flex items-center space-x-1.5">
                 <Check className="w-4 h-4 text-[#cef565]" />
-                <span>Real-Time Yjs Monaco Sync</span>
+                <span>Real-Time Code Sync</span>
               </span>
               <span className="flex items-center space-x-1.5">
                 <Check className="w-4 h-4 text-[#cef565]" />
-                <span>In-Browser Web Worker Runner</span>
+                <span>Instant Code Execution</span>
               </span>
               <span className="flex items-center space-x-1.5">
                 <Check className="w-4 h-4 text-[#cef565]" />
@@ -299,7 +299,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start space-x-3">
                   <Check className="w-4 h-4 text-[#cef565] shrink-0 mt-0.5" />
-                  <span><strong>In-Browser Web Worker Runner:</strong> Real-time Yjs Monaco editor with shared console execution output.</span>
+                  <span><strong>Real-Time Code Sync:</strong> Collaborative live editor with instant shared console execution output.</span>
                 </li>
               </ul>
             </div>
