@@ -124,7 +124,7 @@ export default async function ProblemDetailPage({
             </p>
           </div>
 
-          {problem.examples && (
+          {problem.type !== "code_review" && problem.examples && (
             <div className="space-y-2">
               <h2 className="text-xs font-bold text-[#9d9d9d] uppercase tracking-wider">
                 Examples

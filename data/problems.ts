@@ -532,8 +532,7 @@ function groupBy(array, fn) {
     category: "Database & Performance",
     description:
       "Review the following user profile enrichment service. Identify performance issues (specifically N+1 database query patterns), explain the architectural impact on database connection pools, and propose an optimized batching/joining solution.",
-    examples:
-      "Code Review Criteria:\n1. Identify the N+1 loop executing database queries per array item.\n2. Discuss database connection exhaustion and latency overhead.\n3. Refactor using IN clause batching, SQL JOINs, or DataLoaders.",
+    examples: "",
     hints: [
       "Per-item database queries inside for-loop (N+1 query anti-pattern).",
       "Connection pool exhaustion under concurrent user traffic.",
@@ -592,8 +591,7 @@ async function getUserDashboardData(userIds: string[]) {
     category: "Async & Promises",
     description:
       "Review the following payment notification pipeline. Identify problematic async behavior, missing error handling, floating unawaited promises, and failure propagation issues.",
-    examples:
-      "Code Review Criteria:\n1. Spot floating promises missing await/catch.\n2. Identify swallowed errors in try/catch blocks.\n3. Discuss unhandled rejection crashes in Node.js runtime.",
+    examples: "",
     hints: [
       "auditLogger.logTransaction promise is not awaited (floating promise / unhandled rejection).",
       "Array.prototype.forEach with async callback does not wait for item processing.",
@@ -650,8 +648,7 @@ async function processWebhookPayment(payload: WebhookPayload) {
     category: "Concurrency & State",
     description:
       "Review the following wallet balance transfer handler. Identify how concurrent operations produce inconsistent state, explain the race condition window, and refactor using atomic operations or database transactions.",
-    examples:
-      "Code Review Criteria:\n1. Identify read-modify-write pattern vulnerable to race conditions.\n2. Explain double-spending or negative balance scenarios under high concurrency.\n3. Implement atomic SQL transactions or locking mechanisms.",
+    examples: "",
     hints: [
       "Read-modify-write pattern vulnerable to race conditions under concurrent requests.",
       "Delay between reading sender balance and writing new balance permits double-spending.",
@@ -710,8 +707,7 @@ async function transferFunds(senderId: string, receiverId: string, amount: numbe
     category: "Node.js & Memory",
     description:
       "Review the following WebSocket stream manager and query cache. Identify why process memory grows continuously over time, locate uncleaned event listeners/timers, and propose a leak-free implementation.",
-    examples:
-      "Code Review Criteria:\n1. Identify event listeners registered per request without cleanup.\n2. Spot unbounded global in-memory cache objects.\n3. Fix using WeakMap, cache eviction (LRU), or proper unsubscription.",
+    examples: "",
     hints: [
       "globalBus.on('system_broadcast', ...) listener registered per socket connection without off() on close.",
       "queryCache object grows indefinitely without key eviction or TTL expiry.",
@@ -776,8 +772,7 @@ function handleClientConnection(socket: any, req: any) {
     category: "API & Backend",
     description:
       "Review the following search API route handler. Identify unnecessary work, missing database pagination, over-fetching raw data, and security exposures.",
-    examples:
-      "Code Review Criteria:\n1. Identify fetching full table without SQL OFFSET/LIMIT.\n2. Spot in-memory filtering of large datasets.\n3. Remove sensitive user password hashes from JSON response.",
+    examples: "",
     hints: [
       "SELECT * FROM users fetches entire database into RAM instead of using SQL WHERE clauses.",
       "In-memory Array.prototype.filter on large datasets causes severe CPU/RAM latency.",
@@ -827,8 +822,7 @@ async function searchUsersHandler(req: any, res: any) {
     category: "Async & Concurrency",
     description:
       "Review the following batch notification dispatcher. Identify why firing thousands of HTTP requests with unrestricted `Promise.all()` leads to socket exhaustion, memory spikes, and API rate limit bans. Refactor with controlled concurrency.",
-    examples:
-      "Code Review Criteria:\n1. Identify unrestricted Promise.all on unbounded array.\n2. Discuss OS file descriptor / socket exhaustion limits.\n3. Refactor using p-limit, chunking, or custom concurrency pool.",
+    examples: "",
     hints: [
       "Unrestricted Promise.all maps over 10,000 items simultaneously.",
       "Fires thousands of concurrent HTTP requests causing OS file descriptor / socket hangup errors.",
@@ -875,8 +869,7 @@ async function dispatchBulkNotifications(subscribers: Subscriber[], message: Mes
     category: "TypeScript & Architecture",
     description:
       "Review the following TypeScript data mapper. Identify type safety flaws, excessive `any` usage, unsafe type assertions (`as any`), and weak interfaces. Refactor for strict type safety.",
-    examples:
-      "Code Review Criteria:\n1. Identify unsafe type casting `as any` bypassing compiler checks.\n2. Replace implicit `any` parameters with generics or union types.\n3. Add type guards for runtime validation.",
+    examples: "",
     hints: [
       "Indiscriminate use of 'any' type parameters disabling TypeScript compiler checks.",
       "Unsafe type assertions (data as any, item.id as string) hiding runtime schema bugs.",
@@ -922,8 +915,7 @@ function processApiResponse(data: any): any {
     category: "Security & Auth",
     description:
       "Review the following document sharing API endpoint. Identify the critical security flaw (Insecure Direct Object Reference - IDOR), explain how an attacker could exploit it, and implement proper authorization checks.",
-    examples:
-      "Code Review Criteria:\n1. Identify missing tenant/user ownership verification.\n2. Explain IDOR vulnerability where any user can access another's private files.\n3. Add authorization check against session user ID.",
+    examples: "",
     hints: [
       "IDOR (Insecure Direct Object Reference) security vulnerability.",
       "Fetches document by URL parameter ID without verifying document.userId === currentUser.id.",
@@ -968,8 +960,7 @@ async function getDocumentHandler(req: any, res: any) {
     category: "Observability & Error Handling",
     description:
       "Review the following checkout payment gateway integration. Identify security logging violations, swallowed errors, lack of contextual logging, and leaking internal database stack traces to clients.",
-    examples:
-      "Code Review Criteria:\n1. Identify PII / PCI compliance violation (logging raw credit card details).\n2. Fix swallowed error blocks.\n3. Stop leaking internal stack traces in HTTP responses.",
+    examples: "",
     hints: [
       "PCI-DSS / PII security violation: Logging cleartext credit card numbers and CVC to stdout.",
       "Leaking internal database stack traces (err.stack) in HTTP 500 error responses.",
@@ -1022,8 +1013,7 @@ async function processBillingCheckout(req: any, res: any) {
     category: "Software Design",
     description:
       "Review the following user name formatting module. Identify unnecessary design abstractions, premature generalization, and refactor it into a clean, simple, readable function.",
-    examples:
-      "Code Review Criteria:\n1. Identify overengineered AbstractFactory/Strategy wrappers for a 1-line string format.\n2. Discuss cognitive load, maintainability, and YAGNI principle.\n3. Refactor to a clean single-responsibility function.",
+    examples: "",
     hints: [
       "AbstractFactory and Strategy pattern wrappers used for a simple 1-line string format.",
       "Violates YAGNI (You Aren't Gonna Need It) and KISS software design principles.",

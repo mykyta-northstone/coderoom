@@ -506,7 +506,7 @@ export default function InterviewRoomPage({
               </div>
             </div>
 
-            {problem?.examples && (
+            {problem?.type !== "code_review" && problem?.examples && (
               <div>
                 <h3 className="text-xs font-bold text-[#9d9d9d] uppercase tracking-wider mb-2">
                   Examples
