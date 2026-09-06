@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { PROBLEMS, Language, Problem } from "@/data/problems";
+import { PROBLEMS, Language, Problem, Difficulty } from "@/data/problems";
 import { trackEvent } from "@/lib/analytics";
 import { PlusCircle, CheckCircle2, ArrowRight, PenTool, BookOpen } from "lucide-react";
 
@@ -19,6 +19,7 @@ function CreateInterviewForm() {
   // Custom problem form state (simplified)
   const [customTitle, setCustomTitle] = useState("");
   const [customDescription, setCustomDescription] = useState("");
+  const [customDifficulty, setCustomDifficulty] = useState<Difficulty>("medium");
   const [customExamples, setCustomExamples] = useState("");
   const [customStarterCode, setCustomStarterCode] = useState("");
 
@@ -47,7 +48,7 @@ function CreateInterviewForm() {
         const customProb: Problem = {
           id: `custom-${Date.now()}`,
           title: customTitle.trim(),
-          difficulty: "medium",
+          difficulty: customDifficulty,
           category: "Custom Task",
           description: customDescription.trim(),
           examples: customExamples.trim() || "",
@@ -247,6 +248,21 @@ function CreateInterviewForm() {
                 onChange={(e) => setCustomTitle(e.target.value)}
                 className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-4 py-2.5 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565]"
               />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-[#9d9d9d] mb-1">
+                Difficulty Level
+              </label>
+              <select
+                value={customDifficulty}
+                onChange={(e) => setCustomDifficulty(e.target.value as Difficulty)}
+                className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#cef565]"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
             </div>
 
             <div>

@@ -13,7 +13,7 @@ export async function GET(
     return NextResponse.json({ error: "Room not found or expired" }, { status: 404 });
   }
 
-  const problem = getProblemById(room.problemId);
+  const problem = room.customProblem || getProblemById(room.problemId);
 
   return NextResponse.json({
     room: {
@@ -23,6 +23,7 @@ export async function GET(
       createdAt: room.createdAt,
       expiresAt: room.expiresAt,
       ended: room.ended,
+      customProblem: room.customProblem,
     },
     problem,
   });

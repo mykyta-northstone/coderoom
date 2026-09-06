@@ -39,6 +39,7 @@ interface RoomData {
   createdAt: number;
   expiresAt: number;
   ended: boolean;
+  customProblem?: Problem;
 }
 
 export default function InterviewRoomPage({
@@ -93,7 +94,7 @@ export default function InterviewRoomPage({
 
         const data = await res.json();
         setRoom(data.room);
-        setProblem(data.problem);
+        setProblem(data.problem || data.room?.customProblem || null);
         setIsEnded(data.room.ended);
 
         if (Date.now() > data.room.expiresAt) {
