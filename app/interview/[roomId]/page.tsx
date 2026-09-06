@@ -387,22 +387,24 @@ export default function InterviewRoomPage({
 
         {/* Right Controls */}
         <div className="flex items-center space-x-3">
-          <button
-            onClick={handleCopyLink}
-            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-lg border border-slate-700/60 transition-all"
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-semibold">Link Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-slate-400" />
-                <span>Copy interview link</span>
-              </>
-            )}
-          </button>
+          {userRole === "interviewer" && (
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-lg border border-slate-700/60 transition-all"
+            >
+              {copiedLink ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400 font-semibold">Link Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Copy interview link</span>
+                </>
+              )}
+            </button>
+          )}
 
           {userRole === "interviewer" && !isEnded && (
             <button
