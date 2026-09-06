@@ -6,6 +6,7 @@ import "./globals.css";
 
 const siteUrl = "https://coderoom-delta.vercel.app";
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -93,6 +94,13 @@ export default function RootLayout({
               `}
             </Script>
           </>
+        )}
+        {umamiWebsiteId && (
+          <Script
+            src="https://cloud.umami.is/script.js"
+            data-website-id={umamiWebsiteId}
+            strategy="afterInteractive"
+          />
         )}
       </head>
       <body className="min-h-full flex flex-col bg-[#121212] text-[#f4f4f4] nl">
