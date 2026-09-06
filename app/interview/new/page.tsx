@@ -35,6 +35,7 @@ function CreateInterviewForm() {
   const [customExamples, setCustomExamples] = useState("");
   const [customStarterCode, setCustomStarterCode] = useState("");
 
+  const [interviewerName, setInterviewerName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,6 +109,9 @@ function CreateInterviewForm() {
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem(`coderoom_interviewer_${roomId}`, interviewerToken);
+        if (interviewerName.trim()) {
+          sessionStorage.setItem(`coderoom_interviewer_name_${roomId}`, interviewerName.trim());
+        }
       }
 
       trackEvent("create_interview", { roomId, mode, language });
@@ -472,6 +476,20 @@ function CreateInterviewForm() {
           </div>
         </div>
       )}
+
+      {/* Interviewer Name */}
+      <div className="space-y-2 pt-2 border-t border-[#2e2e2e]">
+        <label className="block text-xs font-bold text-[#c4c4c4] uppercase tracking-wider">
+          Your Name / Interviewer Title (Optional)
+        </label>
+        <input
+          type="text"
+          placeholder="e.g. Alex (Lead Tech Interviewer)"
+          value={interviewerName}
+          onChange={(e) => setInterviewerName(e.target.value)}
+          className="w-full bg-[#141414] border border-[#2e2e2e] rounded-full px-4 py-3 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565] transition-colors"
+        />
+      </div>
 
       {/* CTA */}
       <button

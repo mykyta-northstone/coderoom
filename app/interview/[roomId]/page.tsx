@@ -110,8 +110,13 @@ export default function InterviewRoomPage({
         const savedToken = sessionStorage.getItem(`coderoom_interviewer_${roomId}`);
         if (savedToken) {
           setUserRole("interviewer");
-          setUserName("Interviewer");
-          trackEvent("interview_started", { roomId, role: "interviewer" });
+          const savedInterviewerName = sessionStorage.getItem(`coderoom_interviewer_name_${roomId}`);
+          if (savedInterviewerName) {
+            setUserName(savedInterviewerName);
+            trackEvent("interview_started", { roomId, role: "interviewer" });
+          } else {
+            setShowJoinModal(true);
+          }
         } else {
           const savedCandidateName = sessionStorage.getItem(`coderoom_candidate_name_${roomId}`);
           if (savedCandidateName) {
@@ -165,17 +170,23 @@ export default function InterviewRoomPage({
     return `${pad(minutes)}:${pad(seconds)}`;
   };
 
-  const handleJoinAsCandidate = (e: React.FormEvent) => {
+  const handleJoinSession = (e: React.FormEvent) => {
     e.preventDefault();
     if (!joinNameInput.trim()) return;
 
     const name = joinNameInput.trim();
-    setUserRole("candidate");
-    setUserName(name);
-    sessionStorage.setItem(`coderoom_candidate_name_${roomId}`, name);
-    setShowJoinModal(false);
-
-    trackEvent("candidate_joined", { roomId, name });
+    if (userRole === "interviewer") {
+      setUserName(name);
+      sessionStorage.setItem(`coderoom_interviewer_name_${roomId}`, name);
+      setShowJoinModal(false);
+      trackEvent("interview_started", { roomId, role: "interviewer", name });
+    } else {
+      setUserRole("candidate");
+      setUserName(name);
+      sessionStorage.setItem(`coderoom_candidate_name_${roomId}`, name);
+      setShowJoinModal(false);
+      trackEvent("candidate_joined", { roomId, name });
+    }
   };
 
   const handleCopyLink = () => {
@@ -285,11 +296,11 @@ export default function InterviewRoomPage({
 
   return (
     <div className="flex flex-col h-screen bg-[#121212] overflow-hidden text-[#f4f4f4]">
-      {/* Candidate Name Modal */}
+      {/* Candidate / Interviewer Name Modal */}
       {showJoinModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <form
-            onSubmit={handleJoinAsCandidate}
+            onSubmit={handleJoinSession}
             className="max-w-md w-full bg-[#1e1e1e] p-6 sm:p-8 rounded-[28px] border border-[#2e2e2e] space-y-6 shadow-2xl"
           >
             <div className="flex items-center space-x-3">
@@ -297,8 +308,14 @@ export default function InterviewRoomPage({
                 <UserCheck className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-extrabold text-white">Join interview</h2>
-                <p className="text-xs text-[#9d9d9d]">No account required</p>
+                <h2 className="text-xl font-extrabold text-white">
+                  {userRole === "interviewer" ? "Welcome, Interviewer" : "Join interview"}
+                </h2>
+                <p className="text-xs text-[#9d9d9d]">
+                  {userRole === "interviewer"
+                    ? "Enter your name for participant presence"
+                    : "No account required"}
+                </p>
               </div>
             </div>
 
@@ -310,7 +327,7 @@ export default function InterviewRoomPage({
                 type="text"
                 required
                 autoFocus
-                placeholder="e.g. Alex Smith"
+                placeholder={userRole === "interviewer" ? "e.g. Sarah (Interviewer)" : "e.g. Alex Smith"}
                 value={joinNameInput}
                 onChange={(e) => setJoinNameInput(e.target.value)}
                 className="w-full bg-[#141414] border border-[#2e2e2e] rounded-full px-4 py-3 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565] transition-colors"
@@ -464,7 +481,7 @@ export default function InterviewRoomPage({
                 {problem?.title}
               </h2>
             </div>
-            {problem && getDifficultyBadge(problem.difficulty)}
+            {problem && userRole === "interviewer" && getDifficultyBadge(problem.difficulty)}
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-6 text-xs text-[#c4c4c4] leading-relaxed">
@@ -626,15 +643,17 @@ export default function InterviewRoomPage({
             )}
           </div>
 
-          <OutputConsole
-            result={executionResult}
-            isRunning={isExecuting}
-            onRun={handleRunCode}
-            onClear={() => {
-              setExecutionResult(null);
-              editorHandleRef.current?.setExecutionResultState(null);
-            }}
-          />
+          {problem?.type !== "code_review" && (
+            <OutputConsole
+              result={executionResult}
+              isRunning={isExecuting}
+              onRun={handleRunCode}
+              onClear={() => {
+                setExecutionResult(null);
+                editorHandleRef.current?.setExecutionResultState(null);
+              }}
+            />
+          )}
         </section>
       </main>
     </div>
