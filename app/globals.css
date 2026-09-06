@@ -1,48 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
-  --card-bg: rgba(15, 23, 42, 0.75);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --accent: #6366f1;
+/* ==========================================================================
+   Noir Lime — Design Tokens & Core System
+   ========================================================================== */
+
+:root, .nl {
+  /* --- Backgrounds & Surfaces --------------------------------------------- */
+  --nl-page:    #121212;   /* page background */
+  --nl-shell:   #181818;   /* application shell */
+  --nl-card:    #222222;   /* cards & panels */
+  --nl-sunk:    #141414;   /* recessed zones: inputs, code, console */
+  --nl-edge:    #2e2e2e;   /* borders & dividers */
+
+  /* --- Text -------------------------------------------------------------- */
+  --nl-ink:     #f4f4f4;   /* primary text */
+  --nl-body:    #c4c4c4;   /* long text */
+  --nl-dim:     #9d9d9d;   /* secondary text */
+  --nl-faint:   #6a6a6a;   /* disabled / placeholders */
+  --nl-on-lime: #131313;   /* text on lime fill */
+
+  /* --- Accents ----------------------------------------------------------- */
+  --nl-lime:      #cef565;
+  --nl-lime-dim:  rgba(206, 245, 101, .14);
+  --nl-violet:    #7c5cfc;
+  --nl-violet-dim:rgba(124, 92, 252, .16);
+  --nl-danger:    #f2796b;
+  --nl-danger-dim:rgba(242, 121, 107, .14);
+
+  /* --- Radii ------------------------------------------------------------- */
+  --nl-r-shell: 32px;
+  --nl-r-card:  24px;
+  --nl-r-md:    18px;
+  --nl-r-sm:    14px;
+  --nl-r-xs:    10px;
+  --nl-r-pill:  999px;
+
+  /* --- Spacing ----------------------------------------------------------- */
+  --nl-s-1: 4px;  --nl-s-2: 8px;  --nl-s-3: 12px; --nl-s-4: 16px;
+  --nl-s-5: 22px; --nl-s-6: 28px; --nl-s-7: 40px;
+
+  /* --- Typography -------------------------------------------------------- */
+  --nl-font:  'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --nl-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- Utilities --------------------------------------------------------- */
+  --nl-ring:   0 0 0 4px rgba(206, 245, 101, .14);
+  --nl-focus:  2px solid var(--nl-lime);
+  --nl-shadow: 0 18px 48px rgba(0, 0, 0, .38);
+  --nl-tap:    120ms cubic-bezier(.2, .8, .3, 1);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--nl-page);
+  color: var(--nl-ink);
+  font-family: var(--nl-font);
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+/* Noir Lime Component Classes */
+.nl-page {
+  min-height: 100vh;
+  padding: var(--nl-s-5);
+  background-color: var(--nl-page);
 }
 
-.glass-header {
-  background: rgba(10, 15, 30, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-color);
+.nl-shell {
+  background: var(--nl-shell);
+  border-radius: var(--nl-r-shell);
+  border: 1px solid var(--nl-edge);
+  box-shadow: var(--nl-shadow);
+}
+
+.nl-card {
+  background: var(--nl-card);
+  border-radius: var(--nl-r-card);
+  border: 1px solid var(--nl-edge);
+}
+
+.nl-sunk {
+  background: var(--nl-sunk);
+  border-radius: var(--nl-r-md);
+  border: 1px solid var(--nl-edge);
+}
+
+.nl-btn-lime {
+  background-color: var(--nl-lime);
+  color: var(--nl-on-lime);
+  font-weight: 700;
+  border-radius: var(--nl-r-pill);
+  transition: all var(--nl-tap);
+}
+.nl-btn-lime:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.nl-btn-violet {
+  background-color: var(--nl-violet);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--nl-r-pill);
+  transition: all var(--nl-tap);
+}
+.nl-btn-violet:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.nl-badge-lime {
+  background: var(--nl-lime);
+  color: var(--nl-on-lime);
+  font-weight: 700;
+  border-radius: var(--nl-r-pill);
+}
+
+.nl-badge-soft {
+  background: var(--nl-lime-dim);
+  color: var(--nl-lime);
+  font-weight: 600;
+  border-radius: var(--nl-r-pill);
+  border: 1px solid rgba(206, 245, 101, 0.2);
+}
+
+.nl-badge-violet {
+  background: var(--nl-violet);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--nl-r-pill);
+}
+
+.nl-badge-danger {
+  background: var(--nl-danger-dim);
+  color: var(--nl-danger);
+  font-weight: 600;
+  border-radius: var(--nl-r-pill);
+  border: 1px solid rgba(242, 121, 107, 0.2);
 }
 
 /* Yjs Remote Selection & Cursors in Monaco */
 .yRemoteSelection {
-  background-color: rgba(99, 102, 241, 0.3);
+  background-color: rgba(206, 245, 101, 0.25);
 }
 
 .yRemoteSelectionHead {
   position: absolute;
-  border-left: 2px solid #6366f1;
-  border-top: 2px solid #6366f1;
-  border-bottom: 2px solid #6366f1;
+  border-left: 2px solid #cef565;
+  border-top: 2px solid #cef565;
+  border-bottom: 2px solid #cef565;
   height: 100%;
   box-sizing: border-box;
 }
@@ -50,27 +157,27 @@ body {
 .yRemoteSelectionHead::after {
   position: absolute;
   content: " ";
-  border: 3px solid #6366f1;
+  border: 3px solid #cef565;
   border-radius: 4px;
   left: -4px;
   top: -5px;
 }
 
-/* Scrollbar styles */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: var(--nl-sunk);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: var(--nl-edge);
+  border-radius: var(--nl-r-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--nl-faint);
 }

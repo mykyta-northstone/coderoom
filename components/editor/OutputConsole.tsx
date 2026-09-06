@@ -20,20 +20,20 @@ export function OutputConsole({
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="w-full bg-[#0b1120] border-t border-slate-800 flex flex-col shrink-0 rounded-b-xl overflow-hidden">
+    <div className="w-full bg-[#181818] border-t border-[#2e2e2e] flex flex-col shrink-0 rounded-b-[20px] overflow-hidden">
       {/* Header Bar */}
-      <div className="h-10 px-4 bg-slate-900/90 flex items-center justify-between border-b border-slate-800 text-xs select-none">
+      <div className="h-10 px-4 bg-[#1e1e1e] flex items-center justify-between border-b border-[#2e2e2e] text-xs select-none">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center space-x-1.5 font-semibold text-slate-300 hover:text-white transition-colors"
+            className="flex items-center space-x-1.5 font-bold text-[#c4c4c4] hover:text-white transition-colors"
           >
-            <Terminal className="w-4 h-4 text-blue-400" />
+            <Terminal className="w-4 h-4 text-[#cef565]" />
             <span>Console Output</span>
             {collapsed ? (
-              <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+              <ChevronUp className="w-3.5 h-3.5 text-[#6a6a6a]" />
             ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#6a6a6a]" />
             )}
           </button>
 
@@ -47,17 +47,17 @@ export function OutputConsole({
           {!isRunning && result && (
             <div className="flex items-center space-x-2">
               {result.error ? (
-                <span className="flex items-center space-x-1 text-rose-400 font-medium">
+                <span className="flex items-center space-x-1 text-[#f2796b] font-semibold">
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>Error</span>
                 </span>
               ) : (
-                <span className="flex items-center space-x-1 text-emerald-400 font-medium">
+                <span className="flex items-center space-x-1 text-[#cef565] font-semibold">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Completed</span>
                 </span>
               )}
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-[11px] text-[#6a6a6a] font-mono">
                 ({result.executionTimeMs}ms)
               </span>
             </div>
@@ -68,7 +68,7 @@ export function OutputConsole({
           {result && (
             <button
               onClick={onClear}
-              className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+              className="p-1 text-[#9d9d9d] hover:text-white hover:bg-[#2e2e2e] rounded-md transition-colors"
               title="Clear Console"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -78,7 +78,7 @@ export function OutputConsole({
           <button
             onClick={onRun}
             disabled={isRunning}
-            className="flex items-center space-x-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold rounded-md shadow-sm transition-all active:scale-95"
+            className="flex items-center space-x-1.5 px-3 py-1 bg-[#cef565] hover:bg-[#b9e83c] disabled:opacity-50 text-[#131313] font-bold rounded-full shadow-sm transition-all active:scale-95 text-xs"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Run Code</span>
@@ -88,25 +88,25 @@ export function OutputConsole({
 
       {/* Output Console Content Area */}
       {!collapsed && (
-        <div className="h-44 overflow-y-auto p-3 font-mono text-xs space-y-1.5 bg-[#090d16] text-slate-300 select-text">
+        <div className="h-44 overflow-y-auto p-3 font-mono text-xs space-y-1.5 bg-[#141414] text-[#c4c4c4] select-text">
           {isRunning && (
-            <div className="text-slate-500 italic">Executing code in Web Worker sandbox...</div>
+            <div className="text-[#6a6a6a] italic">Executing code in Web Worker sandbox...</div>
           )}
 
           {!isRunning && !result && (
-            <div className="text-slate-500 italic">
-              Click &quot;Run Code&quot; or press <kbd className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">Cmd + Enter</kbd> to execute.
+            <div className="text-[#6a6a6a] italic">
+              Click &quot;Run Code&quot; or press <kbd className="px-1.5 py-0.5 bg-[#222222] rounded border border-[#2e2e2e] text-[#c4c4c4]">Cmd + Enter</kbd> to execute.
             </div>
           )}
 
           {!isRunning && result && (
             <>
               {result.logs.map((log: ConsoleLogEntry, index: number) => {
-                let textClass = "text-slate-300";
-                if (log.type === "info") textClass = "text-blue-400";
+                let textClass = "text-[#c4c4c4]";
+                if (log.type === "info") textClass = "text-[#7c5cfc]";
                 if (log.type === "warn") textClass = "text-amber-400";
-                if (log.type === "error") textClass = "text-rose-400 font-semibold";
-                if (log.type === "result") textClass = "text-emerald-400 font-semibold";
+                if (log.type === "error") textClass = "text-[#f2796b] font-semibold";
+                if (log.type === "result") textClass = "text-[#cef565] font-semibold";
 
                 return (
                   <div key={index} className={`whitespace-pre-wrap ${textClass}`}>
@@ -116,7 +116,7 @@ export function OutputConsole({
               })}
 
               {result.error && (
-                <div className="p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 whitespace-pre-wrap font-semibold">
+                <div className="p-2 rounded-md bg-[#f2796b]/10 border border-[#f2796b]/20 text-[#f2796b] whitespace-pre-wrap font-semibold">
                   {result.error}
                 </div>
               )}

@@ -25,7 +25,7 @@ const CollaborativeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full w-full bg-[#0f172a] rounded-xl border border-slate-800 flex items-center justify-center text-slate-400 text-sm">
+      <div className="h-full w-full bg-[#181818] rounded-[20px] border border-[#2e2e2e] flex items-center justify-center text-[#9d9d9d] text-xs">
         Initializing Collaborative Monaco Editor...
       </div>
     ),
@@ -172,7 +172,6 @@ export default function InterviewRoomPage({
     if (!room) return;
     const interviewerToken = sessionStorage.getItem(`coderoom_interviewer_${roomId}`) || "";
 
-    // Broadcast ended state to all Yjs room participants instantly
     editorHandleRef.current?.setRoomEnded();
 
     try {
@@ -195,13 +194,11 @@ export default function InterviewRoomPage({
   const handleRunCode = async () => {
     if (!room || isExecuting) return;
 
-    // Broadcast executing status & clear old result
     editorHandleRef.current?.setExecutingState(true);
     editorHandleRef.current?.setExecutionResultState(null);
 
     const result = await executeCode(currentCode, room.language);
 
-    // Broadcast execution output to all participants
     editorHandleRef.current?.setExecutionResultState(result);
     editorHandleRef.current?.setExecutingState(false);
   };
@@ -210,19 +207,19 @@ export default function InterviewRoomPage({
     switch (difficulty) {
       case "easy":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#cef565]/10 text-[#cef565] border border-[#cef565]/20">
             Easy
           </span>
         );
       case "medium":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
             Medium
           </span>
         );
       case "hard":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#f2796b]/10 text-[#f2796b] border border-[#f2796b]/20">
             Hard
           </span>
         );
@@ -231,25 +228,25 @@ export default function InterviewRoomPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center text-slate-400">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-sm font-medium">Connecting to interview room...</p>
+      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center text-[#9d9d9d]">
+        <div className="w-8 h-8 border-2 border-[#cef565] border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-xs font-semibold">Connecting to interview room...</p>
       </div>
     );
   }
 
   if (error || isExpired) {
     return (
-      <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full glass-panel p-8 rounded-2xl border border-slate-800 text-center space-y-6">
-          <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#1e1e1e] p-8 rounded-[28px] border border-[#2e2e2e] text-center space-y-6">
+          <div className="w-12 h-12 rounded-full bg-[#f2796b]/10 border border-[#f2796b]/20 text-[#f2796b] flex items-center justify-center mx-auto">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-extrabold text-white">
               {isExpired ? "This interview room has expired." : "Interview not found."}
             </h1>
-            <p className="text-sm text-slate-400 mt-2">
+            <p className="text-xs text-[#9d9d9d] mt-2">
               {isExpired
                 ? "Rooms expire automatically after 24 hours for security."
                 : error}
@@ -257,7 +254,7 @@ export default function InterviewRoomPage({
           </div>
           <Link
             href="/interview/new"
-            className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg transition-all"
+            className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3 text-xs font-extrabold text-[#131313] bg-[#cef565] hover:bg-[#b9e83c] rounded-full shadow-lg"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Create new interview</span>
@@ -268,26 +265,26 @@ export default function InterviewRoomPage({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#090d16] overflow-hidden text-slate-100">
+    <div className="flex flex-col h-screen bg-[#121212] overflow-hidden text-[#f4f4f4]">
       {/* Candidate Name Modal */}
       {showJoinModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <form
             onSubmit={handleJoinAsCandidate}
-            className="max-w-md w-full glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6"
+            className="max-w-md w-full bg-[#1e1e1e] p-6 sm:p-8 rounded-[28px] border border-[#2e2e2e] space-y-6 shadow-2xl"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <div className="w-10 h-10 rounded-2xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center text-[#cef565]">
                 <UserCheck className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Join interview</h2>
-                <p className="text-xs text-slate-400">No account required</p>
+                <h2 className="text-xl font-extrabold text-white">Join interview</h2>
+                <p className="text-xs text-[#9d9d9d]">No account required</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-200">
+              <label className="block text-xs font-bold text-[#c4c4c4] uppercase tracking-wider">
                 Your name
               </label>
               <input
@@ -297,13 +294,13 @@ export default function InterviewRoomPage({
                 placeholder="e.g. Alex Smith"
                 value={joinNameInput}
                 onChange={(e) => setJoinNameInput(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-[#141414] border border-[#2e2e2e] rounded-full px-4 py-3 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565] transition-colors"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-lg shadow-blue-600/20 transition-all"
+              className="w-full py-3.5 text-xs font-extrabold text-[#131313] bg-[#cef565] hover:bg-[#b9e83c] rounded-full shadow-lg shadow-[#cef565]/15 transition-all"
             >
               Join Session
             </button>
@@ -313,15 +310,15 @@ export default function InterviewRoomPage({
 
       {/* End Interview Modal */}
       {showEndModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-md w-full glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-[#1e1e1e] p-6 rounded-[28px] border border-[#2e2e2e] space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-[#f2796b]/10 border border-[#f2796b]/20 text-[#f2796b] flex items-center justify-center">
                 <PowerOff className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white">End Interview?</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-lg font-extrabold text-white">End Interview?</h2>
+                <p className="text-xs text-[#9d9d9d]">
                   This will make the room read-only for all participants.
                 </p>
               </div>
@@ -330,13 +327,13 @@ export default function InterviewRoomPage({
             <div className="flex items-center justify-end space-x-3">
               <button
                 onClick={() => setShowEndModal(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white"
+                className="px-4 py-2 text-xs font-semibold text-[#9d9d9d] hover:text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleEndInterview}
-                className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-md"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#f2796b] hover:bg-rose-500 rounded-full shadow-md"
               >
                 Confirm & End
               </button>
@@ -346,42 +343,42 @@ export default function InterviewRoomPage({
       )}
 
       {/* Header */}
-      <header className="glass-header h-14 shrink-0 px-4 flex items-center justify-between border-b border-slate-800/80">
+      <header className="h-14 shrink-0 px-4 bg-[#141414]/90 backdrop-blur-md flex items-center justify-between border-b border-[#2e2e2e]">
         <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-7 h-7 rounded-md bg-blue-600/20 border border-blue-500/30 flex items-center justify-center">
-              <Code2 className="w-4 h-4 text-blue-400" />
+            <div className="w-7 h-7 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center">
+              <Code2 className="w-4 h-4 text-[#cef565]" />
             </div>
-            <span className="text-base font-bold tracking-tight text-white hidden sm:inline">
-              Code<span className="text-blue-400">Room</span>
+            <span className="text-base font-extrabold tracking-tight text-white hidden sm:inline">
+              Code<span className="text-[#cef565]">Room</span>
             </span>
           </Link>
 
-          <span className="h-4 w-px bg-slate-800" />
+          <span className="h-4 w-px bg-[#2e2e2e]" />
 
-          <span className="px-2.5 py-1 rounded-md text-xs font-mono font-semibold uppercase bg-slate-800 text-slate-300">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold uppercase bg-[#222222] text-[#c4c4c4] border border-[#2e2e2e]">
             {room?.language}
           </span>
 
           <div className="flex items-center space-x-2 text-xs">
             <span
-              className={`w-2 h-2 rounded-full ${
+              className={`w-2.5 h-2.5 rounded-full ${
                 connectionStatus === "connected"
-                  ? "bg-emerald-500 shadow-sm shadow-emerald-500/50"
+                  ? "bg-[#cef565] shadow-sm shadow-[#cef565]/50"
                   : connectionStatus === "reconnecting"
-                  ? "bg-amber-500 animate-pulse"
-                  : "bg-rose-500"
+                  ? "bg-amber-400 animate-pulse"
+                  : "bg-[#f2796b]"
               }`}
             />
-            <span className="text-slate-400 capitalize hidden md:inline">
+            <span className="text-[#9d9d9d] capitalize hidden md:inline">
               {connectionStatus}
             </span>
           </div>
         </div>
 
         {/* Center: Timer */}
-        <div className="flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-3 py-1 rounded-full text-xs font-mono text-slate-300">
-          <Clock className="w-3.5 h-3.5 text-blue-400" />
+        <div className="flex items-center space-x-2 bg-[#1e1e1e] border border-[#2e2e2e] px-3.5 py-1 rounded-full text-xs font-mono text-[#c4c4c4]">
+          <Clock className="w-3.5 h-3.5 text-[#cef565]" />
           <span>{formatTimer(elapsedSeconds)}</span>
         </div>
 
@@ -390,16 +387,16 @@ export default function InterviewRoomPage({
           {userRole === "interviewer" && (
             <button
               onClick={handleCopyLink}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-lg border border-slate-700/60 transition-all"
+              className="flex items-center space-x-1.5 px-4 py-1.5 text-xs font-bold bg-[#cef565] hover:bg-[#b9e83c] text-[#131313] rounded-full transition-all"
             >
               {copiedLink ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400 font-semibold">Link Copied!</span>
+                  <Check className="w-3.5 h-3.5 text-[#131313]" />
+                  <span>Link Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-3.5 h-3.5 text-slate-400" />
+                  <Copy className="w-3.5 h-3.5 text-[#131313]" />
                   <span>Copy interview link</span>
                 </>
               )}
@@ -409,7 +406,7 @@ export default function InterviewRoomPage({
           {userRole === "interviewer" && !isEnded && (
             <button
               onClick={() => setShowEndModal(true)}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-lg transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold bg-[#f2796b]/10 hover:bg-[#f2796b]/20 text-[#f2796b] border border-[#f2796b]/20 rounded-full transition-all"
             >
               <PowerOff className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">End interview</span>
@@ -421,47 +418,47 @@ export default function InterviewRoomPage({
       {/* Main Workspace split */}
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden p-3 gap-3">
         {/* Left: Problem Statement Panel (35% Desktop) */}
-        <section className="w-full md:w-[35%] h-[35vh] md:h-full flex flex-col glass-panel rounded-xl border border-slate-800/90 overflow-hidden">
-          <div className="p-4 border-b border-slate-800/80 flex items-center justify-between shrink-0 bg-slate-900/40">
+        <section className="w-full md:w-[35%] h-[35vh] md:h-full flex flex-col bg-[#1e1e1e] rounded-[24px] border border-[#2e2e2e] overflow-hidden">
+          <div className="p-4 border-b border-[#2e2e2e] flex items-center justify-between shrink-0 bg-[#141414]/50">
             <div>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-xs text-[#9d9d9d] font-mono">
                 {problem?.category}
               </span>
-              <h2 className="text-lg font-bold text-white tracking-tight">
+              <h2 className="text-lg font-extrabold text-white tracking-tight">
                 {problem?.title}
               </h2>
             </div>
             {problem && getDifficultyBadge(problem.difficulty)}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 text-sm text-slate-300 leading-relaxed">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 text-xs text-[#c4c4c4] leading-relaxed">
             <div>
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <h3 className="text-xs font-bold text-[#9d9d9d] uppercase tracking-wider mb-2">
                 Problem Description
               </h3>
-              <div className="prose prose-invert prose-xs whitespace-pre-wrap">
+              <div className="whitespace-pre-wrap">
                 {problem?.description}
               </div>
             </div>
 
             {problem?.examples && (
               <div>
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <h3 className="text-xs font-bold text-[#9d9d9d] uppercase tracking-wider mb-2">
                   Examples
                 </h3>
-                <pre className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                <pre className="bg-[#141414] p-3.5 rounded-[14px] border border-[#2e2e2e] text-xs font-mono text-[#c4c4c4] overflow-x-auto whitespace-pre-wrap">
                   {problem.examples}
                 </pre>
               </div>
             )}
 
-            <div className="pt-4 border-t border-slate-800/80 space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-400 font-semibold uppercase tracking-wider">
+            <div className="pt-4 border-t border-[#2e2e2e] space-y-3">
+              <div className="flex items-center justify-between text-xs text-[#9d9d9d] font-bold uppercase tracking-wider">
                 <span className="flex items-center space-x-1.5">
-                  <Users className="w-3.5 h-3.5 text-blue-400" />
+                  <Users className="w-3.5 h-3.5 text-[#cef565]" />
                   <span>Participants ({participants.length})</span>
                 </span>
-                <span className="text-[10px] text-slate-500 font-normal">
+                <span className="text-[10px] text-[#6a6a6a] font-normal">
                   {userRole === "interviewer" ? "You are Interviewer" : "You are Candidate"}
                 </span>
               </div>
@@ -470,16 +467,16 @@ export default function InterviewRoomPage({
                 {participants.map((p, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/60 text-xs"
+                    className="flex items-center justify-between p-2.5 rounded-[14px] bg-[#141414] border border-[#2e2e2e] text-xs"
                   >
                     <div className="flex items-center space-x-2">
                       <span
                         className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: p.color }}
                       />
-                      <span className="font-medium text-white">{p.name}</span>
+                      <span className="font-semibold text-white">{p.name}</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] uppercase font-semibold bg-slate-800 text-slate-400">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold bg-[#222222] text-[#9d9d9d] border border-[#2e2e2e]">
                       {p.role}
                     </span>
                   </div>
@@ -490,14 +487,14 @@ export default function InterviewRoomPage({
         </section>
 
         {/* Right: Monaco Editor + Output Console Panel (65% Desktop) */}
-        <section className="w-full md:w-[65%] h-[65vh] md:h-full flex flex-col relative overflow-hidden">
+        <section className="w-full md:w-[65%] h-[65vh] md:h-full flex flex-col relative overflow-hidden rounded-[24px]">
           {/* Ended Interview Banner Overlay */}
           {isEnded && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-rose-950/90 border border-rose-500/40 text-rose-200 px-6 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center space-x-4">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-[#1e1e1e]/95 border border-[#f2796b]/40 text-[#f2796b] px-6 py-2.5 rounded-full shadow-2xl backdrop-blur-md flex items-center space-x-4">
               <span className="text-xs font-bold">Interview ended — Read Only</span>
               <Link
                 href="/interview/new"
-                className="text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 px-3 py-1 rounded-md transition-colors"
+                className="text-xs font-extrabold text-[#131313] bg-[#cef565] hover:bg-[#b9e83c] px-3.5 py-1 rounded-full transition-colors"
               >
                 Create another interview
               </Link>
