@@ -1,10 +1,49 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const siteUrl = "https://coderoom-delta.vercel.app";
+
 export const metadata: Metadata = {
-  title: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+    template: "%s | CodeRoom",
+  },
   description:
-    "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
+    "Create a live coding room, share the link, and interview candidates in real time. Free for JavaScript & TypeScript. No candidate account required.",
+  keywords: [
+    "live coding interview",
+    "JavaScript interview room",
+    "TypeScript coding interview",
+    "collaborative code editor",
+    "online technical interview",
+    "Yjs Monaco editor",
+    "free live coding",
+  ],
+  authors: [{ name: "CodeRoom" }],
+  creator: "CodeRoom",
+  openGraph: {
+    title: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+    description:
+      "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
+    url: siteUrl,
+    siteName: "CodeRoom",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+    description:
+      "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({
@@ -12,8 +51,30 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "CodeRoom",
+    url: siteUrl,
+    description:
+      "Free live coding interviews for JavaScript & TypeScript. Create a room, share the link, and interview candidates in real time.",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "All",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
   return (
     <html lang="en" className="h-full dark antialiased nl">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#121212] text-[#f4f4f4] nl">
         {children}
       </body>
