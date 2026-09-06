@@ -5,7 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const siteUrl = "https://coderoom-delta.vercel.app";
-const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-S5MJGQL6GG";
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RMVP37GX3L";
 const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export const metadata: Metadata = {
