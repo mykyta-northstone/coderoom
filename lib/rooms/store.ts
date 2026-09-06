@@ -8,6 +8,7 @@ export type Room = {
   createdAt: number;
   expiresAt: number;
   ended: boolean;
+  endedAt?: number;
   interviewerToken: string;
   customProblem?: Problem;
 };
@@ -127,6 +128,7 @@ export async function endRoom(id: string, interviewerToken: string): Promise<boo
   if (!room) return false;
   if (room.interviewerToken !== interviewerToken) return false;
   room.ended = true;
+  room.endedAt = room.endedAt || Date.now();
   roomStore.set(id, room);
   return true;
 }

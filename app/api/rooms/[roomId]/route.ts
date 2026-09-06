@@ -23,6 +23,7 @@ export async function GET(
       createdAt: room.createdAt,
       expiresAt: room.expiresAt,
       ended: room.ended,
+      endedAt: room.endedAt,
       customProblem: room.customProblem,
     },
     problem,

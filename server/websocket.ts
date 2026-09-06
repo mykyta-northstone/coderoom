@@ -18,6 +18,7 @@ export type Room = {
   createdAt: number;
   expiresAt: number;
   ended: boolean;
+  endedAt?: number;
   interviewerToken: string;
   customProblem?: Problem;
 };
@@ -171,9 +172,10 @@ const server = http.createServer((req, res) => {
         const room = getRoom(roomId);
         if (room) {
           room.ended = true;
+          room.endedAt = room.endedAt || Date.now();
         }
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: true, ended: true }));
+        res.end(JSON.stringify({ success: true, ended: true, endedAt: room?.endedAt }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Invalid request payload" }));

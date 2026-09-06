@@ -39,6 +39,7 @@ interface RoomData {
   createdAt: number;
   expiresAt: number;
   ended: boolean;
+  endedAt?: number;
   customProblem?: Problem;
 }
 
@@ -126,15 +127,26 @@ export default function InterviewRoomPage({
     fetchRoom();
   }, [roomId]);
 
-  // Interview duration timer
+  // Interview duration timer (freezes when interview ends)
   useEffect(() => {
     if (!room) return;
+
+    if (isEnded || room.ended) {
+      const endTime = room.endedAt || Date.now();
+      const seconds = Math.max(0, Math.floor((endTime - room.createdAt) / 1000));
+      setElapsedSeconds(seconds);
+      return;
+    }
+
+    setElapsedSeconds(Math.max(0, Math.floor((Date.now() - room.createdAt) / 1000)));
+
     const interval = setInterval(() => {
       const seconds = Math.max(0, Math.floor((Date.now() - room.createdAt) / 1000));
       setElapsedSeconds(seconds);
     }, 1000);
+
     return () => clearInterval(interval);
-  }, [room]);
+  }, [room, isEnded]);
 
   const formatTimer = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -379,9 +391,20 @@ export default function InterviewRoomPage({
         </div>
 
         {/* Center: Timer */}
-        <div className="flex items-center space-x-2 bg-[#1e1e1e] border border-[#2e2e2e] px-3.5 py-1 rounded-full text-xs font-mono text-[#c4c4c4]">
-          <Clock className="w-3.5 h-3.5 text-[#cef565]" />
+        <div
+          className={`flex items-center space-x-2 border px-3.5 py-1 rounded-full text-xs font-mono transition-colors ${
+            isEnded
+              ? "bg-[#f2796b]/10 border-[#f2796b]/30 text-[#f2796b]"
+              : "bg-[#1e1e1e] border-[#2e2e2e] text-[#c4c4c4]"
+          }`}
+        >
+          <Clock className={`w-3.5 h-3.5 ${isEnded ? "text-[#f2796b]" : "text-[#cef565]"}`} />
           <span>{formatTimer(elapsedSeconds)}</span>
+          {isEnded && (
+            <span className="text-[10px] font-sans font-bold uppercase tracking-wider pl-1">
+              (Ended)
+            </span>
+          )}
         </div>
 
         {/* Right Controls */}
