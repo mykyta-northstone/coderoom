@@ -18,6 +18,7 @@ import {
   AlertCircle,
   PlusCircle,
   UserCheck,
+  Search,
 } from "lucide-react";
 
 const CollaborativeEditor = dynamic(
@@ -374,6 +375,12 @@ export default function InterviewRoomPage({
             {room?.language}
           </span>
 
+          {problem?.type === "code_review" && (
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/40 hidden sm:inline">
+              Code Review Mode
+            </span>
+          )}
+
           <div className="flex items-center space-x-2 text-xs">
             <span
               className={`w-2.5 h-2.5 rounded-full ${
@@ -457,6 +464,18 @@ export default function InterviewRoomPage({
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-6 text-xs text-[#c4c4c4] leading-relaxed">
+            {problem?.type === "code_review" && (
+              <div className="p-4 rounded-[18px] bg-[#7c5cfc]/10 border border-[#7c5cfc]/30 space-y-2 text-xs">
+                <div className="flex items-center space-x-2 font-extrabold text-[#a894ff]">
+                  <Search className="w-4 h-4 text-[#a894ff]" />
+                  <span>Code Review Task</span>
+                </div>
+                <p className="text-[11px] text-[#c4c4c4] leading-relaxed">
+                  Review the TypeScript code in the editor. Identify <strong>bugs</strong>, <strong>performance issues</strong>, <strong>security flaws</strong>, and <strong>maintainability problems</strong>. Explain your reasoning and refactor live together.
+                </p>
+              </div>
+            )}
+
             <div>
               <h3 className="text-xs font-bold text-[#9d9d9d] uppercase tracking-wider mb-2">
                 Problem Description

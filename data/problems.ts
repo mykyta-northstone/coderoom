@@ -1,9 +1,11 @@
 export type Difficulty = "easy" | "medium" | "hard";
 export type Language = "javascript" | "typescript";
+export type ProblemType = "coding" | "code_review";
 
 export type Problem = {
   id: string;
   title: string;
+  type?: ProblemType;
   difficulty: Difficulty;
   category: string;
   description: string;
@@ -517,6 +519,568 @@ function groupBy(array, fn) {
 ): Record<K, T[]> {
   // Your implementation here
 
+}
+`,
+    },
+  },
+  {
+    id: "n-plus-1-queries",
+    title: "Code Review: N+1 Database Queries",
+    type: "code_review",
+    difficulty: "medium",
+    category: "Database & Performance",
+    description:
+      "Review the following user profile enrichment service. Identify performance issues (specifically N+1 database query patterns), explain the architectural impact on database connection pools, and propose an optimized batching/joining solution.",
+    examples:
+      "Code Review Criteria:\n1. Identify the N+1 loop executing database queries per array item.\n2. Discuss database connection exhaustion and latency overhead.\n3. Refactor using IN clause batching, SQL JOINs, or DataLoaders.",
+    starterCode: {
+      javascript: `// Service handler fetching active user profiles and their recent orders
+async function getUserDashboardData(userIds) {
+  const users = [];
+
+  // Query 1: Fetch user records
+  for (const id of userIds) {
+    const user = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+    
+    // N+1 Queries: Fetch orders for each user inside loop
+    const orders = await db.query('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [id]);
+    
+    // N+1 Queries: Fetch settings for each user inside loop
+    const settings = await db.query('SELECT * FROM user_settings WHERE user_id = $1', [id]);
+
+    users.push({
+      ...user,
+      recentOrders: orders,
+      settings: settings[0] || {}
+    });
+  }
+
+  return users;
+}
+`,
+      typescript: `interface User { id: string; name: string; }
+interface Order { id: string; userId: string; amount: number; }
+interface UserSettings { userId: string; theme: string; }
+
+// Service handler fetching active user profiles and their recent orders
+async function getUserDashboardData(userIds: string[]) {
+  const users = [];
+
+  // Query 1: Fetch user records
+  for (const id of userIds) {
+    const user = await db.query<User>('SELECT * FROM users WHERE id = $1', [id]);
+    
+    // N+1 Queries: Fetch orders for each user inside loop
+    const orders = await db.query<Order[]>('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [id]);
+    
+    // N+1 Queries: Fetch settings for each user inside loop
+    const settings = await db.query<UserSettings>('SELECT * FROM user_settings WHERE user_id = $1', [id]);
+
+    users.push({
+      ...user,
+      recentOrders: orders,
+      settings: settings[0] || {}
+    });
+  }
+
+  return users;
+}
+`,
+    },
+  },
+  {
+    id: "async-error-handling",
+    title: "Code Review: Async Error Handling",
+    type: "code_review",
+    difficulty: "medium",
+    category: "Async & Promises",
+    description:
+      "Review the following payment notification pipeline. Identify problematic async behavior, missing error handling, floating unawaited promises, and failure propagation issues.",
+    examples:
+      "Code Review Criteria:\n1. Spot floating promises missing await/catch.\n2. Identify swallowed errors in try/catch blocks.\n3. Discuss unhandled rejection crashes in Node.js runtime.",
+    starterCode: {
+      javascript: `// Background job processing webhook notifications
+async function processWebhookPayment(payload) {
+  try {
+    const payment = await verifyPaymentSignature(payload);
+
+    // BUG 1: Floating promise - not awaited, errors will be lost!
+    auditLogger.logTransaction({ id: payment.id, amount: payment.amount });
+
+    // BUG 2: Async function called without await inside forEach
+    payload.items.forEach(async (item) => {
+      await updateInventoryStock(item.id, item.qty);
+      await sendReceiptEmail(payment.customerEmail, item);
+    });
+
+    return { status: "processed" };
+  } catch (err) {
+    // BUG 3: Swallowing error silently and returning success fallback!
+    console.log("Something went wrong:", err);
+    return { status: "processed" };
+  }
+}
+`,
+      typescript: `interface WebhookPayload { id: string; customerEmail: string; items: Array<{ id: string; qty: number }>; }
+
+// Background job processing webhook notifications
+async function processWebhookPayment(payload: WebhookPayload) {
+  try {
+    const payment = await verifyPaymentSignature(payload);
+
+    // BUG 1: Floating promise - not awaited, errors will be lost!
+    auditLogger.logTransaction({ id: payment.id, amount: payment.amount });
+
+    // BUG 2: Async function called without await inside forEach
+    payload.items.forEach(async (item) => {
+      await updateInventoryStock(item.id, item.qty);
+      await sendReceiptEmail(payment.customerEmail, item);
+    });
+
+    return { status: "processed" };
+  } catch (err) {
+    // BUG 3: Swallowing error silently and returning success fallback!
+    console.log("Something went wrong:", err);
+    return { status: "processed" };
+  }
+}
+`,
+    },
+  },
+  {
+    id: "race-condition-state",
+    title: "Code Review: Race Condition & State Mutability",
+    type: "code_review",
+    difficulty: "hard",
+    category: "Concurrency & State",
+    description:
+      "Review the following wallet balance transfer handler. Identify how concurrent operations produce inconsistent state, explain the race condition window, and refactor using atomic operations or database transactions.",
+    examples:
+      "Code Review Criteria:\n1. Identify read-modify-write pattern vulnerable to race conditions.\n2. Explain double-spending or negative balance scenarios under high concurrency.\n3. Implement atomic SQL transactions or locking mechanisms.",
+    starterCode: {
+      javascript: `// Account balance transfer service
+async function transferFunds(senderId, receiverId, amount) {
+  // Read sender balance
+  const sender = await db.findUser(senderId);
+  
+  if (sender.balance < amount) {
+    throw new Error("Insufficient funds");
+  }
+
+  // Simulate network delay between read and write
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  // Read receiver balance
+  const receiver = await db.findUser(receiverId);
+
+  // Vulnerable non-atomic updates
+  const newSenderBalance = sender.balance - amount;
+  const newReceiverBalance = receiver.balance + amount;
+
+  await db.updateUserBalance(senderId, newSenderBalance);
+  await db.updateUserBalance(receiverId, newReceiverBalance);
+
+  return { success: true };
+}
+`,
+      typescript: `// Account balance transfer service
+async function transferFunds(senderId: string, receiverId: string, amount: number) {
+  // Read sender balance
+  const sender = await db.findUser(senderId);
+  
+  if (sender.balance < amount) {
+    throw new Error("Insufficient funds");
+  }
+
+  // Simulate network delay between read and write
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  // Read receiver balance
+  const receiver = await db.findUser(receiverId);
+
+  // Vulnerable non-atomic updates
+  const newSenderBalance = sender.balance - amount;
+  const newReceiverBalance = receiver.balance + amount;
+
+  await db.updateUserBalance(senderId, newSenderBalance);
+  await db.updateUserBalance(receiverId, newReceiverBalance);
+
+  return { success: true };
+}
+`,
+    },
+  },
+  {
+    id: "memory-leak-node",
+    title: "Code Review: Node.js Memory Leak",
+    type: "code_review",
+    difficulty: "hard",
+    category: "Node.js & Memory",
+    description:
+      "Review the following WebSocket stream manager and query cache. Identify why process memory grows continuously over time, locate uncleaned event listeners/timers, and propose a leak-free implementation.",
+    examples:
+      "Code Review Criteria:\n1. Identify event listeners registered per request without cleanup.\n2. Spot unbounded global in-memory cache objects.\n3. Fix using WeakMap, cache eviction (LRU), or proper unsubscription.",
+    starterCode: {
+      javascript: `const EventEmitter = require('events');
+const globalBus = new EventEmitter();
+
+// Unbounded global query cache
+const queryCache = {};
+
+function handleClientConnection(socket, req) {
+  const userId = req.headers['x-user-id'];
+
+  // BUG 1: Adding event listener per connection without removal on socket close!
+  globalBus.on('system_broadcast', (msg) => {
+    socket.send(JSON.stringify({ type: 'broadcast', data: msg }));
+  });
+
+  // BUG 2: Indefinite cache growth - never evicted or garbage collected!
+  socket.on('query', async (queryStr) => {
+    if (!queryCache[queryStr]) {
+      queryCache[queryStr] = await runHeavyQuery(queryStr);
+    }
+    socket.send(JSON.stringify(queryCache[queryStr]));
+  });
+
+  // BUG 3: Timer interval created without clearInterval on disconnect!
+  setInterval(() => {
+    socket.send(JSON.stringify({ ping: Date.now() }));
+  }, 5000);
+}
+`,
+      typescript: `import EventEmitter from 'events';
+const globalBus = new EventEmitter();
+
+// Unbounded global query cache
+const queryCache: Record<string, any> = {};
+
+function handleClientConnection(socket: any, req: any) {
+  const userId = req.headers['x-user-id'];
+
+  // BUG 1: Adding event listener per connection without removal on socket close!
+  globalBus.on('system_broadcast', (msg) => {
+    socket.send(JSON.stringify({ type: 'broadcast', data: msg }));
+  });
+
+  // BUG 2: Indefinite cache growth - never evicted or garbage collected!
+  socket.on('query', async (queryStr: string) => {
+    if (!queryCache[queryStr]) {
+      queryCache[queryStr] = await runHeavyQuery(queryStr);
+    }
+    socket.send(JSON.stringify(queryCache[queryStr]));
+  });
+
+  // BUG 3: Timer interval created without clearInterval on disconnect!
+  setInterval(() => {
+    socket.send(JSON.stringify({ ping: Date.now() }));
+  }, 5000);
+}
+`,
+    },
+  },
+  {
+    id: "inefficient-api-handler",
+    title: "Code Review: Inefficient API Implementation",
+    type: "code_review",
+    difficulty: "easy",
+    category: "API & Backend",
+    description:
+      "Review the following search API route handler. Identify unnecessary work, missing database pagination, over-fetching raw data, and security exposures.",
+    examples:
+      "Code Review Criteria:\n1. Identify fetching full table without SQL OFFSET/LIMIT.\n2. Spot in-memory filtering of large datasets.\n3. Remove sensitive user password hashes from JSON response.",
+    starterCode: {
+      javascript: `// API route GET /api/users/search?q=name
+async function searchUsersHandler(req, res) {
+  const searchQuery = req.query.q || "";
+
+  // BUG 1: Fetching ENTIRE database of 100,000+ users into RAM!
+  const allUsers = await db.query('SELECT * FROM users');
+
+  // BUG 2: Filtering in JS memory instead of database WHERE clause
+  const matchedUsers = allUsers.filter(u => 
+    u.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // BUG 3: No pagination limit - returns massive payload
+  // BUG 4: Returns raw password_hash and internal tokens to client!
+  return res.json({
+    total: matchedUsers.length,
+    users: matchedUsers
+  });
+}
+`,
+      typescript: `// API route GET /api/users/search?q=name
+async function searchUsersHandler(req: any, res: any) {
+  const searchQuery = (req.query.q as string) || "";
+
+  // BUG 1: Fetching ENTIRE database of 100,000+ users into RAM!
+  const allUsers = await db.query('SELECT * FROM users');
+
+  // BUG 2: Filtering in JS memory instead of database WHERE clause
+  const matchedUsers = allUsers.filter((u: any) => 
+    u.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // BUG 3: No pagination limit - returns massive payload
+  // BUG 4: Returns raw password_hash and internal tokens to client!
+  return res.json({
+    total: matchedUsers.length,
+    users: matchedUsers
+  });
+}
+`,
+    },
+  },
+  {
+    id: "unrestricted-promise-all",
+    title: "Code Review: Promise Concurrency Exhaustion",
+    type: "code_review",
+    difficulty: "medium",
+    category: "Async & Concurrency",
+    description:
+      "Review the following batch notification dispatcher. Identify why firing thousands of HTTP requests with unrestricted `Promise.all()` leads to socket exhaustion, memory spikes, and API rate limit bans. Refactor with controlled concurrency.",
+    examples:
+      "Code Review Criteria:\n1. Identify unrestricted Promise.all on unbounded array.\n2. Discuss OS file descriptor / socket exhaustion limits.\n3. Refactor using p-limit, chunking, or custom concurrency pool.",
+    starterCode: {
+      javascript: `// Batch newsletter dispatcher
+async function dispatchBulkNotifications(subscribers, message) {
+  console.log(\`Starting dispatch to \${subscribers.length} subscribers...\`);
+
+  // BUG: Firing 10,000 simultaneous HTTP requests at once!
+  // Causes Socket Hangup, ECONNRESET, and 429 Rate Limits
+  const results = await Promise.all(
+    subscribers.map(sub => 
+      sendEmailViaSendgrid(sub.email, message.subject, message.body)
+    )
+  );
+
+  return { dispatched: results.length };
+}
+`,
+      typescript: `interface Subscriber { id: string; email: string; }
+interface Message { subject: string; body: string; }
+
+// Batch newsletter dispatcher
+async function dispatchBulkNotifications(subscribers: Subscriber[], message: Message) {
+  console.log(\`Starting dispatch to \${subscribers.length} subscribers...\`);
+
+  // BUG: Firing 10,000 simultaneous HTTP requests at once!
+  // Causes Socket Hangup, ECONNRESET, and 429 Rate Limits
+  const results = await Promise.all(
+    subscribers.map(sub => 
+      sendEmailViaSendgrid(sub.email, message.subject, message.body)
+    )
+  );
+
+  return { dispatched: results.length };
+}
+`,
+    },
+  },
+  {
+    id: "bad-typescript-design",
+    title: "Code Review: Bad TypeScript Design",
+    type: "code_review",
+    difficulty: "easy",
+    category: "TypeScript & Architecture",
+    description:
+      "Review the following TypeScript data mapper. Identify type safety flaws, excessive `any` usage, unsafe type assertions (`as any`), and weak interfaces. Refactor for strict type safety.",
+    examples:
+      "Code Review Criteria:\n1. Identify unsafe type casting `as any` bypassing compiler checks.\n2. Replace implicit `any` parameters with generics or union types.\n3. Add type guards for runtime validation.",
+    starterCode: {
+      javascript: `// Unsafe data normalization pipeline
+function processApiResponse(data) {
+  const result = (data as any).items.map((item) => {
+    return {
+      id: item.id as string,
+      title: item.title || "Untitled",
+      meta: (item as any).metadata ? JSON.parse((item as any).metadata) : {}
+    };
+  });
+
+  return result as any;
+}
+`,
+      typescript: `// Unsafe data normalization pipeline
+function processApiResponse(data: any): any {
+  // BUG 1: Indiscriminate 'as any' casting bypasses TS checks
+  const items = (data as any).items;
+
+  const result = items.map((item: any) => {
+    return {
+      id: item.id as string,
+      title: item.title || "Untitled",
+      // BUG 2: Potential runtime crash if metadata is not JSON string
+      meta: (item as any).metadata ? JSON.parse((item as any).metadata) : {}
+    };
+  });
+
+  return result as any;
+}
+`,
+    },
+  },
+  {
+    id: "auth-authorization-bug",
+    title: "Code Review: Authorization & Security Bug",
+    type: "code_review",
+    difficulty: "medium",
+    category: "Security & Auth",
+    description:
+      "Review the following document sharing API endpoint. Identify the critical security flaw (Insecure Direct Object Reference - IDOR), explain how an attacker could exploit it, and implement proper authorization checks.",
+    examples:
+      "Code Review Criteria:\n1. Identify missing tenant/user ownership verification.\n2. Explain IDOR vulnerability where any user can access another's private files.\n3. Add authorization check against session user ID.",
+    starterCode: {
+      javascript: `// GET /api/documents/:documentId
+async function getDocumentHandler(req, res) {
+  // Authenticated user from JWT middleware
+  const currentUser = req.user; // { id: "user_123", role: "member" }
+  const documentId = req.params.documentId;
+
+  // BUG: Fetches document by ID without checking if document belongs to currentUser!
+  const document = await db.query('SELECT * FROM documents WHERE id = $1', [documentId]);
+
+  if (!document) {
+    return res.status(404).json({ error: "Document not found" });
+  }
+
+  // Any authenticated user can read ANY document in the database!
+  return res.json(document);
+}
+`,
+      typescript: `// GET /api/documents/:documentId
+async function getDocumentHandler(req: any, res: any) {
+  // Authenticated user from JWT middleware
+  const currentUser = req.user; // { id: "user_123", role: "member" }
+  const documentId = req.params.documentId;
+
+  // BUG: Fetches document by ID without checking if document belongs to currentUser!
+  const document = await db.query('SELECT * FROM documents WHERE id = $1', [documentId]);
+
+  if (!document) {
+    return res.status(404).json({ error: "Document not found" });
+  }
+
+  // Any authenticated user can read ANY document in the database!
+  return res.json(document);
+}
+`,
+    },
+  },
+  {
+    id: "poor-logging-error-design",
+    title: "Code Review: Poor Logging & Error Design",
+    type: "code_review",
+    difficulty: "easy",
+    category: "Observability & Error Handling",
+    description:
+      "Review the following checkout payment gateway integration. Identify security logging violations, swallowed errors, lack of contextual logging, and leaking internal database stack traces to clients.",
+    examples:
+      "Code Review Criteria:\n1. Identify PII / PCI compliance violation (logging raw credit card details).\n2. Fix swallowed error blocks.\n3. Stop leaking internal stack traces in HTTP responses.",
+    starterCode: {
+      javascript: `// Checkout billing processor
+async function processBillingCheckout(req, res) {
+  const { creditCardNumber, cvc, amount, userId } = req.body;
+
+  // BUG 1: Logging sensitive PCI credit card details in cleartext stdout!
+  console.log(\`Processing payment for user \${userId}: card=\${creditCardNumber}, cvc=\${cvc}\`);
+
+  try {
+    const charge = await stripe.charges.create({ amount, card: creditCardNumber });
+    return res.json({ success: true, chargeId: charge.id });
+  } catch (err) {
+    // BUG 2: Leaking internal system stack traces & SQL errors to public clients!
+    return res.status(500).json({
+      error: "Billing failure",
+      debugStackTrace: err.stack,
+      rawError: JSON.stringify(err)
+    });
+  }
+}
+`,
+      typescript: `// Checkout billing processor
+async function processBillingCheckout(req: any, res: any) {
+  const { creditCardNumber, cvc, amount, userId } = req.body;
+
+  // BUG 1: Logging sensitive PCI credit card details in cleartext stdout!
+  console.log(\`Processing payment for user \${userId}: card=\${creditCardNumber}, cvc=\${cvc}\`);
+
+  try {
+    const charge = await stripe.charges.create({ amount, card: creditCardNumber });
+    return res.json({ success: true, chargeId: charge.id });
+  } catch (err: any) {
+    // BUG 2: Leaking internal system stack traces & SQL errors to public clients!
+    return res.status(500).json({
+      error: "Billing failure",
+      debugStackTrace: err.stack,
+      rawError: JSON.stringify(err)
+    });
+  }
+}
+`,
+    },
+  },
+  {
+    id: "overengineered-simple-task",
+    title: "Code Review: Overengineered Code",
+    type: "code_review",
+    difficulty: "medium",
+    category: "Software Design",
+    description:
+      "Review the following user name formatting module. Identify unnecessary design abstractions, premature generalization, and refactor it into a clean, simple, readable function.",
+    examples:
+      "Code Review Criteria:\n1. Identify overengineered AbstractFactory/Strategy wrappers for a 1-line string format.\n2. Discuss cognitive load, maintainability, and YAGNI principle.\n3. Refactor to a clean single-responsibility function.",
+    starterCode: {
+      javascript: `// Formatting a user's display name: "FirstName LastName"
+class AbstractNameFormatterFactory {
+  createFormatter() { throw new Error("Abstract method"); }
+}
+
+class StandardNameFormatterStrategy {
+  format(firstName, lastName) {
+    return \`\${firstName} \${lastName}\`.trim();
+  }
+}
+
+class DefaultNameFormatterFactory extends AbstractNameFormatterFactory {
+  createFormatter() {
+    return new StandardNameFormatterStrategy();
+  }
+}
+
+function formatUserDisplayName(user) {
+  const factory = new DefaultNameFormatterFactory();
+  const formatter = factory.createFormatter();
+  return formatter.format(user.firstName, user.lastName);
+}
+`,
+      typescript: `interface IUser { firstName: string; lastName: string; }
+
+abstract class AbstractNameFormatterFactory {
+  abstract createFormatter(): INameFormatter;
+}
+
+interface INameFormatter {
+  format(firstName: string, lastName: string): string;
+}
+
+class StandardNameFormatterStrategy implements INameFormatter {
+  format(firstName: string, lastName: string): string {
+    return \`\${firstName} \${lastName}\`.trim();
+  }
+}
+
+class DefaultNameFormatterFactory extends AbstractNameFormatterFactory {
+  createFormatter(): INameFormatter {
+    return new StandardNameFormatterStrategy();
+  }
+}
+
+function formatUserDisplayName(user: IUser): string {
+  const factory: AbstractNameFormatterFactory = new DefaultNameFormatterFactory();
+  const formatter: INameFormatter = factory.createFormatter();
+  return formatter.format(user.firstName, user.lastName);
 }
 `,
     },

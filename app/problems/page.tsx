@@ -8,6 +8,7 @@ import { Search, PlusCircle, ChevronRight, Filter, ArrowUpDown } from "lucide-re
 
 export default function ProblemsPage() {
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | "coding" | "code_review">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"difficulty-asc" | "difficulty-desc" | "title">("difficulty-asc");
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
@@ -25,7 +26,14 @@ export default function ProblemsPage() {
       problem.category.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty =
       difficultyFilter === "all" || problem.difficulty === difficultyFilter;
-    return matchesSearch && matchesDifficulty;
+    const matchesType =
+      typeFilter === "all"
+        ? true
+        : typeFilter === "code_review"
+        ? problem.type === "code_review"
+        : problem.type !== "code_review";
+
+    return matchesSearch && matchesDifficulty && matchesType;
   }).sort((a, b) => {
     if (sortOrder === "difficulty-asc") {
       return difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
@@ -70,13 +78,13 @@ export default function ProblemsPage() {
               Problem Library
             </h1>
             <p className="text-sm text-[#9d9d9d] mt-1">
-              Browse standard JavaScript & TypeScript interview questions
+              Browse standard JavaScript & TypeScript interview questions and code review tasks
             </p>
           </div>
 
           {/* Controls */}
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="relative w-full sm:w-64">
+            <div className="relative w-full sm:w-56">
               <Search className="w-4 h-4 text-[#6a6a6a] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -87,6 +95,40 @@ export default function ProblemsPage() {
               />
             </div>
 
+            {/* Filter by Type */}
+            <div className="flex items-center space-x-1 bg-[#141414] border border-[#2e2e2e] rounded-full p-1 w-full sm:w-auto">
+              <button
+                onClick={() => setTypeFilter("all")}
+                className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
+                  typeFilter === "all"
+                    ? "bg-[#cef565] text-[#131313]"
+                    : "text-[#9d9d9d] hover:text-white"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setTypeFilter("coding")}
+                className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
+                  typeFilter === "coding"
+                    ? "bg-[#cef565] text-[#131313]"
+                    : "text-[#9d9d9d] hover:text-white"
+                }`}
+              >
+                Coding
+              </button>
+              <button
+                onClick={() => setTypeFilter("code_review")}
+                className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
+                  typeFilter === "code_review"
+                    ? "bg-[#7c5cfc] text-white"
+                    : "text-[#9d9d9d] hover:text-white"
+                }`}
+              >
+                Code Review
+              </button>
+            </div>
+
             {/* Filter by Difficulty */}
             <div className="flex items-center space-x-1 bg-[#141414] border border-[#2e2e2e] rounded-full p-1 w-full sm:w-auto">
               <Filter className="w-3.5 h-3.5 text-[#6a6a6a] ml-2" />
@@ -94,7 +136,7 @@ export default function ProblemsPage() {
                 <button
                   key={diff}
                   onClick={() => setDifficultyFilter(diff)}
-                  className={`px-3.5 py-1 text-xs font-bold rounded-full capitalize transition-all ${
+                  className={`px-3 py-1 text-xs font-bold rounded-full capitalize transition-all ${
                     difficultyFilter === diff
                       ? "bg-[#cef565] text-[#131313]"
                       : "text-[#9d9d9d] hover:text-white"
@@ -146,6 +188,11 @@ export default function ProblemsPage() {
                       {problem.title}
                     </h3>
                     {getDifficultyBadge(problem.difficulty)}
+                    {problem.type === "code_review" && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/30">
+                        Code Review
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-xs text-[#9d9d9d] font-mono bg-[#141414] px-2.5 py-0.5 rounded-full border border-[#2e2e2e]">

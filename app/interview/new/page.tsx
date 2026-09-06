@@ -13,6 +13,7 @@ function CreateInterviewForm() {
   const initialProblemId = searchParams.get("problemId") || PROBLEMS[0].id;
 
   const [mode, setMode] = useState<"library" | "custom">("library");
+  const [problemTypeFilter, setProblemTypeFilter] = useState<"all" | "coding" | "code_review">("all");
   const [language, setLanguage] = useState<Language>("typescript");
   const [problemId, setProblemId] = useState<string>(initialProblemId);
 
@@ -204,13 +205,57 @@ function CreateInterviewForm() {
             </span>
           </div>
 
+          {/* Type Filter Tabs */}
+          <div className="flex items-center space-x-2 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setProblemTypeFilter("all")}
+              className={`px-3 py-1 rounded-full transition-all ${
+                problemTypeFilter === "all"
+                  ? "bg-[#cef565] text-[#131313] font-bold"
+                  : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
+              }`}
+            >
+              All Types
+            </button>
+            <button
+              type="button"
+              onClick={() => setProblemTypeFilter("coding")}
+              className={`px-3 py-1 rounded-full transition-all ${
+                problemTypeFilter === "coding"
+                  ? "bg-[#cef565] text-[#131313] font-bold"
+                  : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
+              }`}
+            >
+              Coding Challenges
+            </button>
+            <button
+              type="button"
+              onClick={() => setProblemTypeFilter("code_review")}
+              className={`px-3 py-1 rounded-full transition-all ${
+                problemTypeFilter === "code_review"
+                  ? "bg-[#7c5cfc] text-white font-bold"
+                  : "bg-[#141414] text-[#9d9d9d] border border-[#2e2e2e] hover:text-white"
+              }`}
+            >
+              Code Review Tasks
+            </button>
+          </div>
+
           <select
             value={problemId}
             onChange={(e) => setProblemId(e.target.value)}
             className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[16px] px-4 py-3 text-xs text-white focus:outline-none focus:border-[#cef565] transition-colors"
           >
-            {PROBLEMS.map((p) => (
+            {PROBLEMS.filter((p) =>
+              problemTypeFilter === "all"
+                ? true
+                : problemTypeFilter === "code_review"
+                ? p.type === "code_review"
+                : p.type !== "code_review"
+            ).map((p) => (
               <option key={p.id} value={p.id}>
+                {p.type === "code_review" ? "🔍 [Code Review] " : "💻 "}
                 {p.title} ({p.difficulty.toUpperCase()}) — {p.category}
               </option>
             ))}
@@ -218,10 +263,19 @@ function CreateInterviewForm() {
 
           <div className="p-4 rounded-[16px] bg-[#141414] border border-[#2e2e2e] space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[#cef565]">{selectedProblem.title}</span>
-              <span className="capitalize text-[#9d9d9d] text-[11px] font-semibold">{selectedProblem.difficulty}</span>
+              <div className="flex items-center space-x-2">
+                <span className="font-bold text-[#cef565]">{selectedProblem.title}</span>
+                {selectedProblem.type === "code_review" && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7c5cfc]/20 text-[#a894ff] border border-[#7c5cfc]/30">
+                    Code Review
+                  </span>
+                )}
+              </div>
+              <span className="capitalize text-[#9d9d9d] text-[11px] font-semibold">
+                {selectedProblem.difficulty}
+              </span>
             </div>
-            <p className="text-xs text-[#9d9d9d] line-clamp-2">
+            <p className="text-xs text-[#9d9d9d] line-clamp-2 leading-relaxed">
               {selectedProblem.description}
             </p>
           </div>
