@@ -13,15 +13,21 @@ const messageAwareness = 1;
 type RoomState = {
   doc: Y.Doc;
   awareness: awarenessProtocol.Awareness;
-  conns: Map<WebSocket, Set<number>>; // ws -> set of controlled awareness clientIds
+  conns: Map<WebSocket, Set<number>>;
 };
 
 const rooms = new Map<string, RoomState>();
 
-const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 1234;
+// Support process.env.PORT (Render / Heroku / Cloud) as primary fallback
+const PORT = process.env.PORT
+  ? parseInt(process.env.PORT, 10)
+  : process.env.WS_PORT
+  ? parseInt(process.env.WS_PORT, 10)
+  : 1234;
+
 const wss = new WebSocketServer({ port: PORT });
 
-console.log(`[CodeRoom WS] Collaboration server running on ws://localhost:${PORT}`);
+console.log(`[CodeRoom WS] Collaboration server running on port ${PORT}`);
 
 function getOrCreateRoomState(roomId: string): RoomState {
   let state = rooms.get(roomId);
@@ -146,8 +152,5 @@ wss.on("connection", (conn: WebSocket, req) => {
       Array.from(controlledIds),
       null
     );
-    if (conns.size === 0) {
-      // Keep doc in memory for quick reconnects
-    }
   });
 });
