@@ -1,4 +1,4 @@
-import { Language, getProblemById } from "@/data/problems";
+import { Language, getProblemById, Problem } from "@/data/problems";
 import crypto from "crypto";
 
 export type Room = {
@@ -9,6 +9,7 @@ export type Room = {
   expiresAt: number;
   ended: boolean;
   interviewerToken: string;
+  customProblem?: Problem;
 };
 
 const globalRoomStore = globalThis as unknown as {
@@ -43,7 +44,8 @@ export function generateToken(): string {
 
 export async function createRoom(
   problemId: string,
-  language: Language
+  language: Language,
+  customProblem?: Problem
 ): Promise<{ room: Room; interviewerToken: string }> {
   const backendUrl = getBackendHttpUrl();
   if (backendUrl) {
@@ -51,7 +53,7 @@ export async function createRoom(
       const res = await fetch(`${backendUrl}/api/rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ problemId, language }),
+        body: JSON.stringify({ problemId, language, customProblem }),
       });
       if (res.ok) {
         return await res.json();
@@ -75,6 +77,7 @@ export async function createRoom(
     expiresAt,
     ended: false,
     interviewerToken,
+    customProblem,
   };
 
   roomStore.set(id, room);
@@ -96,7 +99,6 @@ export async function getRoom(id: string): Promise<Room | null> {
     }
   }
 
-  // Fallback local memory
   const room = roomStore.get(id);
   if (!room) return null;
   if (Date.now() > room.expiresAt) {
@@ -121,7 +123,6 @@ export async function endRoom(id: string, interviewerToken: string): Promise<boo
     }
   }
 
-  // Fallback local memory
   const room = roomStore.get(id);
   if (!room) return false;
   if (room.interviewerToken !== interviewerToken) return false;

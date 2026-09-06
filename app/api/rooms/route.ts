@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { createRoom } from "@/lib/rooms/store";
-import { getProblemById, Language } from "@/data/problems";
+import { getProblemById, Language, Problem } from "@/data/problems";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { problemId, language } = body as { problemId: string; language: Language };
+    const { problemId, language, customProblem } = body as {
+      problemId: string;
+      language: Language;
+      customProblem?: Problem;
+    };
 
-    if (!problemId || !getProblemById(problemId)) {
+    if (!customProblem && (!problemId || !getProblemById(problemId))) {
       return NextResponse.json({ error: "Invalid problem ID" }, { status: 400 });
     }
 
@@ -15,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Language must be javascript or typescript" }, { status: 400 });
     }
 
-    const { room, interviewerToken } = await createRoom(problemId, language);
+    const { room, interviewerToken } = await createRoom(problemId || "custom", language, customProblem);
 
     return NextResponse.json({
       room: {
@@ -25,6 +29,7 @@ export async function POST(request: Request) {
         createdAt: room.createdAt,
         expiresAt: room.expiresAt,
         ended: room.ended,
+        customProblem: room.customProblem,
       },
       interviewerToken,
     });

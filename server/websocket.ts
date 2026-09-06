@@ -6,7 +6,7 @@ import * as awarenessProtocol from "y-protocols/awareness";
 import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
 import crypto from "crypto";
-import { getProblemById, Language } from "../data/problems";
+import { getProblemById, Language, Problem } from "../data/problems";
 
 const messageSync = 0;
 const messageAwareness = 1;
@@ -19,6 +19,7 @@ export type Room = {
   expiresAt: number;
   ended: boolean;
   interviewerToken: string;
+  customProblem?: Problem;
 };
 
 type RoomState = {
@@ -44,7 +45,11 @@ function generateToken(): string {
   return crypto.randomBytes(16).toString("hex");
 }
 
-function createRoom(problemId: string, language: Language): { room: Room; interviewerToken: string } {
+function createRoom(
+  problemId: string,
+  language: Language,
+  customProblem?: Problem
+): { room: Room; interviewerToken: string } {
   const id = generateRoomId();
   const interviewerToken = generateToken();
   const now = Date.now();
@@ -58,6 +63,7 @@ function createRoom(problemId: string, language: Language): { room: Room; interv
     expiresAt,
     ended: false,
     interviewerToken,
+    customProblem,
   };
 
   roomMetaStore.set(id, room);
@@ -74,7 +80,6 @@ function getRoom(id: string): Room | null {
   return room;
 }
 
-// HTTP Server for persistent API + WebSockets
 const PORT = process.env.PORT
   ? parseInt(process.env.PORT, 10)
   : process.env.WS_PORT
@@ -82,7 +87,6 @@ const PORT = process.env.PORT
   : 1234;
 
 const server = http.createServer((req, res) => {
-  // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -102,8 +106,8 @@ const server = http.createServer((req, res) => {
     req.on("end", () => {
       try {
         const parsed = JSON.parse(body);
-        const { problemId, language } = parsed;
-        const { room, interviewerToken } = createRoom(problemId, language);
+        const { problemId, language, customProblem } = parsed;
+        const { room, interviewerToken } = createRoom(problemId, language, customProblem);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
@@ -114,6 +118,7 @@ const server = http.createServer((req, res) => {
               createdAt: room.createdAt,
               expiresAt: room.expiresAt,
               ended: room.ended,
+              customProblem: room.customProblem,
             },
             interviewerToken,
           })
@@ -136,7 +141,7 @@ const server = http.createServer((req, res) => {
       res.end(JSON.stringify({ error: "Room not found or expired" }));
       return;
     }
-    const problem = getProblemById(room.problemId);
+    const problem = room.customProblem || getProblemById(room.problemId);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(
       JSON.stringify({
@@ -147,6 +152,7 @@ const server = http.createServer((req, res) => {
           createdAt: room.createdAt,
           expiresAt: room.expiresAt,
           ended: room.ended,
+          customProblem: room.customProblem,
         },
         problem,
       })
@@ -200,7 +206,7 @@ function getOrCreateRoomState(roomId: string): RoomState {
 
     const roomMeta = getRoom(roomId);
     if (roomMeta) {
-      const problem = getProblemById(roomMeta.problemId);
+      const problem = roomMeta.customProblem || getProblemById(roomMeta.problemId);
       if (problem) {
         const starterCode = problem.starterCode[roomMeta.language] || "";
         const ytext = doc.getText("monaco");
