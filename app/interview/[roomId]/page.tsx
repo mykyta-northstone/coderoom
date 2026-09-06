@@ -111,12 +111,8 @@ export default function InterviewRoomPage({
         if (savedToken) {
           setUserRole("interviewer");
           const savedInterviewerName = sessionStorage.getItem(`coderoom_interviewer_name_${roomId}`);
-          if (savedInterviewerName) {
-            setUserName(savedInterviewerName);
-            trackEvent("interview_started", { roomId, role: "interviewer" });
-          } else {
-            setShowJoinModal(true);
-          }
+          setUserName(savedInterviewerName || "Interviewer");
+          trackEvent("interview_started", { roomId, role: "interviewer" });
         } else {
           const savedCandidateName = sessionStorage.getItem(`coderoom_candidate_name_${roomId}`);
           if (savedCandidateName) {
@@ -632,6 +628,7 @@ export default function InterviewRoomPage({
                 userName={userName}
                 userRole={userRole}
                 readOnly={isEnded}
+                initialCode={problem?.starterCode?.[room?.language || "typescript"]}
                 onRunCode={handleRunCode}
                 onConnectionStatusChange={setConnectionStatus}
                 onPresenceChange={setParticipants}

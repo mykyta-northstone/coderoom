@@ -20,6 +20,7 @@ interface CollaborativeEditorProps {
   userName: string;
   userRole: "interviewer" | "candidate";
   readOnly?: boolean;
+  initialCode?: string;
   onRunCode?: () => void;
   onConnectionStatusChange?: (status: "connected" | "reconnecting" | "disconnected") => void;
   onPresenceChange?: (participants: Array<{ name: string; role: "interviewer" | "candidate"; color: string }>) => void;
@@ -46,6 +47,7 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
       userName,
       userRole,
       readOnly = false,
+      initialCode,
       onRunCode,
       onConnectionStatusChange,
       onPresenceChange,
@@ -187,6 +189,11 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
 
       // Bind Yjs text to Monaco model
       const ytext = doc.getText("monaco");
+
+      if (ytext.toString() === "" && initialCode) {
+        ytext.insert(0, initialCode);
+      }
+
       const model = editorRef.current.getModel();
 
       if (model) {
@@ -213,7 +220,7 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
         provider.destroy();
         doc.destroy();
       };
-    }, [editorReady, roomId, userName, userRole]);
+    }, [editorReady, roomId, userName, userRole, initialCode]);
 
     return (
       <div className="h-full w-full overflow-hidden flex flex-col bg-[#0f172a] rounded-t-xl border border-slate-800">
