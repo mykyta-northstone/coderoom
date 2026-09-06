@@ -234,74 +234,174 @@ export default function LandingPage() {
         </section>
 
         {/* WHY CODEROOM? COMPARISON SECTION */}
-        <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative">
           <div className="max-w-3xl mx-auto space-y-3 mb-16">
-            <span className="text-xs font-bold text-[#cef565] uppercase tracking-wider">
-              Why Interviewers Switch to CodeRoom
+            <span className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#cef565]/10 border border-[#cef565]/25 text-xs font-bold text-[#cef565] uppercase tracking-wider">
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              <span>Why Interviewers Switch to CodeRoom</span>
             </span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Ditch the candidate accounts & $250/mo subscriptions
+              Ditch candidate accounts & $250/mo subscriptions
             </h2>
-            <p className="text-sm text-[#9d9d9d]">
-              Traditional coding interview tools force candidates through multi-step signups and charge bloated enterprise fees. CodeRoom is fast, free, and zero-friction.
+            <p className="text-sm text-[#9d9d9d] max-w-xl mx-auto">
+              Traditional coding tools force candidates through frustrating signups and charge bloated fees. CodeRoom is fast, free, and zero-friction.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left items-stretch">
             {/* Bloated Platforms */}
-            <div className="p-8 rounded-[28px] bg-[#181818] border border-[#f2796b]/20 space-y-6 relative overflow-hidden">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-[#f2796b]">Traditional Tools (CoderPad, HackerRank)</h3>
-                <X className="w-6 h-6 text-[#f2796b]" />
+            <div className="p-7 sm:p-9 rounded-[32px] bg-[#161616] border border-[#f2796b]/20 space-y-6 relative overflow-hidden flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-[#2e2e2e]">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-[#f2796b] uppercase tracking-wider">
+                      Legacy Approach
+                    </span>
+                    <h3 className="text-xl font-bold text-[#f2796b]">
+                      Traditional Tools (CoderPad, HackerRank)
+                    </h3>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-[#f2796b]/10 border border-[#f2796b]/20 flex items-center justify-center text-[#f2796b] shrink-0">
+                    <X className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="p-4 rounded-[20px] bg-[#121212] border border-[#262626] flex items-start space-x-3">
+                    <div className="w-6 h-6 rounded-full bg-[#f2796b]/10 text-[#f2796b] flex items-center justify-center shrink-0 mt-0.5">
+                      <X className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5">Mandatory Sign-Up Friction</div>
+                      <div className="text-[11px] text-[#8e8e8e] leading-relaxed">
+                        Candidates must register, verify email, and log in before starting the interview.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#121212] border border-[#262626] flex items-start space-x-3">
+                    <div className="w-6 h-6 rounded-full bg-[#f2796b]/10 text-[#f2796b] flex items-center justify-center shrink-0 mt-0.5">
+                      <X className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5">$250 - $500/mo Subscription Fees</div>
+                      <div className="text-[11px] text-[#8e8e8e] leading-relaxed">
+                        Expensive per-interviewer seat licenses with annual lock-in contracts.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#121212] border border-[#262626] flex items-start space-x-3">
+                    <div className="w-6 h-6 rounded-full bg-[#f2796b]/10 text-[#f2796b] flex items-center justify-center shrink-0 mt-0.5">
+                      <X className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5">Slow Enterprise Room Setup</div>
+                      <div className="text-[11px] text-[#8e8e8e] leading-relaxed">
+                        Requires navigating admin dashboards, invitation forms, and scheduling queues.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#121212] border border-[#262626] flex items-start space-x-3">
+                    <div className="w-6 h-6 rounded-full bg-[#f2796b]/10 text-[#f2796b] flex items-center justify-center shrink-0 mt-0.5">
+                      <X className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5">Cluttered & Heavy Interface</div>
+                      <div className="text-[11px] text-[#8e8e8e] leading-relaxed">
+                        Overloaded with video popups, ads, and unnecessary administrative options.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <ul className="space-y-4 text-xs text-[#c4c4c4]">
-                <li className="flex items-start space-x-3">
-                  <X className="w-4 h-4 text-[#f2796b] shrink-0 mt-0.5" />
-                  <span>Candidates must create an account and verify email before joining.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <X className="w-4 h-4 text-[#f2796b] shrink-0 mt-0.5" />
-                  <span>Cost $250 - $500/month per interviewer seat.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <X className="w-4 h-4 text-[#f2796b] shrink-0 mt-0.5" />
-                  <span>Complex multi-step room setup and mandatory enterprise forms.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <X className="w-4 h-4 text-[#f2796b] shrink-0 mt-0.5" />
-                  <span>Bloated UI with unnecessary dashboards, ads, and video call clutter.</span>
-                </li>
-              </ul>
             </div>
 
             {/* CodeRoom Advantage */}
-            <div className="p-8 rounded-[28px] bg-[#1e1e1e] border border-[#cef565]/40 space-y-6 relative overflow-hidden shadow-2xl shadow-[#cef565]/5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">
-                  Code<span className="text-[#cef565]">Room</span>
-                </h3>
-                <div className="w-8 h-8 rounded-full bg-[#cef565]/20 text-[#cef565] flex items-center justify-center">
-                  <Check className="w-5 h-5" />
+            <div className="p-7 sm:p-9 rounded-[32px] bg-gradient-to-b from-[#1f2617] via-[#1a1e16] to-[#161616] border border-[#cef565]/50 space-y-6 relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-[#cef565]/10">
+              {/* Glowing Pill Tag */}
+              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#cef565] text-[#131313] text-[10px] font-extrabold uppercase tracking-wider shadow-md">
+                Recommended
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b border-[#cef565]/20">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-[#cef565] uppercase tracking-wider">
+                      Modern Standard
+                    </span>
+                    <h3 className="text-xl font-extrabold text-white">
+                      Code<span className="text-[#cef565]">Room</span>
+                    </h3>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-[#cef565] text-[#131313] flex items-center justify-center shrink-0 shadow-lg shadow-[#cef565]/20">
+                    <Check className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="p-4 rounded-[20px] bg-[#141810] border border-[#cef565]/30 flex items-start space-x-3 transition-all hover:border-[#cef565]/60">
+                    <div className="w-6 h-6 rounded-full bg-[#cef565]/20 text-[#cef565] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5 flex items-center space-x-2">
+                        <span>Zero Candidate Friction</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#cef565]/15 text-[#cef565] text-[10px] font-mono">1 Second Join</span>
+                      </div>
+                      <div className="text-[11px] text-[#b8c29e] leading-relaxed">
+                        Just send the room URL. Candidates type their name and start coding instantly.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#141810] border border-[#cef565]/30 flex items-start space-x-3 transition-all hover:border-[#cef565]/60">
+                    <div className="w-6 h-6 rounded-full bg-[#cef565]/20 text-[#cef565] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5 flex items-center space-x-2">
+                        <span>100% Free Forever</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#cef565]/15 text-[#cef565] text-[10px] font-mono">$0 / mo</span>
+                      </div>
+                      <div className="text-[11px] text-[#b8c29e] leading-relaxed">
+                        No credit card, no subscription traps, no candidate volume limits.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#141810] border border-[#cef565]/30 flex items-start space-x-3 transition-all hover:border-[#cef565]/60">
+                    <div className="w-6 h-6 rounded-full bg-[#cef565]/20 text-[#cef565] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5 flex items-center space-x-2">
+                        <span>5-Second Instant Room Setup</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#cef565]/15 text-[#cef565] text-[10px] font-mono">1 Click</span>
+                      </div>
+                      <div className="text-[11px] text-[#b8c29e] leading-relaxed">
+                        Pick a pre-made JS/TS question from library or type a custom task prompt.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-[20px] bg-[#141810] border border-[#cef565]/30 flex items-start space-x-3 transition-all hover:border-[#cef565]/60">
+                    <div className="w-6 h-6 rounded-full bg-[#cef565]/20 text-[#cef565] flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white mb-0.5 flex items-center space-x-2">
+                        <span>Real-Time Code Sync & Execution</span>
+                        <span className="px-2 py-0.5 rounded-full bg-[#cef565]/15 text-[#cef565] text-[10px] font-mono">Monaco IDE</span>
+                      </div>
+                      <div className="text-[11px] text-[#b8c29e] leading-relaxed">
+                        Collaborative live editor with remote cursors and shared console output.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <ul className="space-y-4 text-xs text-white">
-                <li className="flex items-start space-x-3">
-                  <Check className="w-4 h-4 text-[#cef565] shrink-0 mt-0.5" />
-                  <span><strong>Zero candidate friction:</strong> Just send the URL. They type their name and join in 1 second.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <Check className="w-4 h-4 text-[#cef565] shrink-0 mt-0.5" />
-                  <span><strong>100% Free:</strong> No credit card, no subscriptions, no hidden tier limits.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <Check className="w-4 h-4 text-[#cef565] shrink-0 mt-0.5" />
-                  <span><strong>5-Second Room Creation:</strong> Pick a JS/TS question or type a custom prompt.</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <Check className="w-4 h-4 text-[#cef565] shrink-0 mt-0.5" />
-                  <span><strong>Real-Time Code Sync:</strong> Collaborative live editor with instant shared console execution output.</span>
-                </li>
-              </ul>
             </div>
           </div>
         </section>
