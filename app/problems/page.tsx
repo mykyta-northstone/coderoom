@@ -4,12 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { PROBLEMS, Problem, Difficulty } from "@/data/problems";
-import { Search, PlusCircle, ChevronRight, Filter } from "lucide-react";
+import { Search, PlusCircle, ChevronRight, Filter, ArrowUpDown } from "lucide-react";
 
 export default function ProblemsPage() {
   const [search, setSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const [sortOrder, setSortOrder] = useState<"difficulty-asc" | "difficulty-desc" | "title">("difficulty-asc");
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+
+  const difficultyRank: Record<Difficulty, number> = {
+    easy: 1,
+    medium: 2,
+    hard: 3,
+  };
 
   const filteredProblems = PROBLEMS.filter((problem) => {
     const matchesSearch =
@@ -19,6 +26,14 @@ export default function ProblemsPage() {
     const matchesDifficulty =
       difficultyFilter === "all" || problem.difficulty === difficultyFilter;
     return matchesSearch && matchesDifficulty;
+  }).sort((a, b) => {
+    if (sortOrder === "difficulty-asc") {
+      return difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
+    }
+    if (sortOrder === "difficulty-desc") {
+      return difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
+    }
+    return a.title.localeCompare(b.title);
   });
 
   const getDifficultyBadge = (difficulty: Difficulty) => {
@@ -72,6 +87,7 @@ export default function ProblemsPage() {
               />
             </div>
 
+            {/* Filter by Difficulty */}
             <div className="flex items-center space-x-1 bg-[#141414] border border-[#2e2e2e] rounded-full p-1 w-full sm:w-auto">
               <Filter className="w-3.5 h-3.5 text-[#6a6a6a] ml-2" />
               {(["all", "easy", "medium", "hard"] as const).map((diff) => (
@@ -87,6 +103,26 @@ export default function ProblemsPage() {
                   {diff}
                 </button>
               ))}
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="relative flex items-center bg-[#141414] border border-[#2e2e2e] rounded-full px-3 py-1 w-full sm:w-auto">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#6a6a6a] mr-2 shrink-0" />
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as any)}
+                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer pr-2"
+              >
+                <option value="difficulty-asc" className="bg-[#1e1e1e] text-white">
+                  Sort: Easy → Hard
+                </option>
+                <option value="difficulty-desc" className="bg-[#1e1e1e] text-white">
+                  Sort: Hard → Easy
+                </option>
+                <option value="title" className="bg-[#1e1e1e] text-white">
+                  Sort: Alphabetical
+                </option>
+              </select>
             </div>
           </div>
         </div>

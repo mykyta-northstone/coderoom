@@ -14,7 +14,7 @@ export type Problem = {
   };
 };
 
-export const PROBLEMS: Problem[] = [
+const rawProblems: Problem[] = [
   {
     id: "valid-parentheses",
     title: "Valid Parentheses",
@@ -522,6 +522,16 @@ function groupBy(array, fn) {
     },
   },
 ];
+
+const difficultyRankMap: Record<Difficulty, number> = {
+  easy: 1,
+  medium: 2,
+  hard: 3,
+};
+
+export const PROBLEMS: Problem[] = rawProblems.sort(
+  (a, b) => difficultyRankMap[a.difficulty] - difficultyRankMap[b.difficulty]
+);
 
 export function getProblemById(id: string): Problem | undefined {
   return PROBLEMS.find((p) => p.id === id);
