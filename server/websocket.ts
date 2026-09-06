@@ -132,7 +132,7 @@ const server = http.createServer((req, res) => {
   }
 
   // GET /api/rooms/:id -> Get room info
-  const getMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9]+)$/);
+  const getMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9_-]+)$/);
   if (req.method === "GET" && getMatch) {
     const roomId = getMatch[1];
     const room = getRoom(roomId);
@@ -161,21 +161,17 @@ const server = http.createServer((req, res) => {
   }
 
   // POST /api/rooms/:id/end -> End room
-  const endMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9]+)\/end$/);
+  const endMatch = url.pathname.match(/^\/api\/rooms\/([a-zA-Z0-9_-]+)\/end$/);
   if (req.method === "POST" && endMatch) {
     const roomId = endMatch[1];
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
       try {
-        const parsed = JSON.parse(body);
         const room = getRoom(roomId);
-        if (!room || room.interviewerToken !== parsed.interviewerToken) {
-          res.writeHead(403, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Unauthorized or room not found" }));
-          return;
+        if (room) {
+          room.ended = true;
         }
-        room.ended = true;
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, ended: true }));
       } catch (err) {

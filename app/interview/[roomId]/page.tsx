@@ -169,25 +169,26 @@ export default function InterviewRoomPage({
   };
 
   const handleEndInterview = async () => {
-    if (!room) return;
-    const interviewerToken = sessionStorage.getItem(`coderoom_interviewer_${roomId}`) || "";
+    setIsEnded(true);
+    setShowEndModal(false);
 
+    // Broadcast ended state to all Yjs room participants instantly
     editorHandleRef.current?.setRoomEnded();
 
+    const interviewerToken =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem(`coderoom_interviewer_${roomId}`) || ""
+        : "";
+
     try {
-      const res = await fetch(`/api/rooms/${roomId}/end`, {
+      await fetch(`/api/rooms/${roomId}/end`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "end", interviewerToken }),
       });
-
-      if (res.ok) {
-        setIsEnded(true);
-        setShowEndModal(false);
-        trackEvent("interview_ended", { roomId });
-      }
+      trackEvent("interview_ended", { roomId });
     } catch (err) {
-      console.error("Failed to end interview:", err);
+      console.error("Failed to sync room end to backend:", err);
     }
   };
 
