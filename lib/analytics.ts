@@ -13,31 +13,22 @@ export function trackEvent(event: AnalyticsEvent, payload?: Record<string, any>)
   // Console output for local dev inspection
   console.log(`[CodeRoom Analytics] ${event}`, payload || "");
 
-  // Built-in free API logger (/api/analytics)
-  try {
-    fetch("/api/analytics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event, payload }),
-    }).catch(() => {});
-  } catch (err) {}
-
-  // Vercel Analytics custom event tracking
-  try {
-    track(event, payload);
-  } catch (err) {}
-
-  // Google Analytics (gtag.js) event hook
+  // Google Analytics 4 (gtag.js) event dispatching
   if (typeof (window as any).gtag === "function") {
     (window as any).gtag("event", event, payload);
   }
 
-  // Umami event hook
+  // Vercel Analytics custom event tracking (if enabled)
+  try {
+    track(event, payload);
+  } catch (err) {}
+
+  // Umami event hook (if configured)
   if (typeof (window as any).umami === "object" && typeof (window as any).umami.track === "function") {
     (window as any).umami.track(event, payload);
   }
 
-  // PostHog event hook
+  // PostHog event hook (if configured)
   if (typeof (window as any).posthog !== "undefined") {
     (window as any).posthog.capture(event, payload);
   }
