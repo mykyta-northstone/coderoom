@@ -19,6 +19,7 @@ import {
   PlusCircle,
   UserCheck,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 
 const CollaborativeEditor = dynamic(
@@ -79,6 +80,9 @@ export default function InterviewRoomPage({
 
   // Timer state
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Interviewer bug checklist state
+  const [checkedHints, setCheckedHints] = useState<Record<number, boolean>>({});
 
   // Fetch room metadata
   useEffect(() => {
@@ -493,6 +497,63 @@ export default function InterviewRoomPage({
                 <pre className="bg-[#141414] p-3.5 rounded-[14px] border border-[#2e2e2e] text-xs font-mono text-[#c4c4c4] overflow-x-auto whitespace-pre-wrap">
                   {problem.examples}
                 </pre>
+              </div>
+            )}
+
+            {/* Interviewer Guide & Bug Checklist (Visible strictly for Interviewers) */}
+            {userRole === "interviewer" && problem?.hints && problem.hints.length > 0 && (
+              <div className="p-4 rounded-[18px] bg-[#cef565]/5 border border-[#cef565]/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 font-extrabold text-[#cef565] text-xs">
+                    <ShieldCheck className="w-4 h-4 text-[#cef565]" />
+                    <span>Interviewer Guide</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#cef565]/15 text-[#cef565] border border-[#cef565]/30 uppercase">
+                    Private to Interviewer
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#9d9d9d]">
+                  Bug checklist to evaluate candidate performance during review:
+                </p>
+                <div className="space-y-2 pt-1">
+                  {problem.hints.map((hint, idx) => {
+                    const isChecked = !!checkedHints[idx];
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() =>
+                          setCheckedHints((prev) => ({
+                            ...prev,
+                            [idx]: !prev[idx],
+                          }))
+                        }
+                        className={`w-full text-left flex items-start space-x-2.5 p-2.5 rounded-[12px] border transition-all ${
+                          isChecked
+                            ? "bg-[#cef565]/10 border-[#cef565]/30 text-[#cef565]"
+                            : "bg-[#141414] border-[#2e2e2e] text-[#e4e4e4] hover:border-[#3e3e3e]"
+                        }`}
+                      >
+                        <span
+                          className={`shrink-0 w-4 h-4 rounded border flex items-center justify-center text-[10px] font-bold mt-0.5 transition-colors ${
+                            isChecked
+                              ? "bg-[#cef565] border-[#cef565] text-[#121212]"
+                              : "border-[#cef565]/40 bg-[#cef565]/5 text-[#cef565]"
+                          }`}
+                        >
+                          {isChecked ? "✓" : idx + 1}
+                        </span>
+                        <span
+                          className={`text-xs leading-snug ${
+                            isChecked ? "line-through opacity-80" : ""
+                          }`}
+                        >
+                          {hint}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

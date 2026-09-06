@@ -10,6 +10,7 @@ export type Problem = {
   category: string;
   description: string;
   examples: string;
+  hints?: string[];
   starterCode: {
     javascript: string;
     typescript: string;
@@ -533,19 +534,19 @@ function groupBy(array, fn) {
       "Review the following user profile enrichment service. Identify performance issues (specifically N+1 database query patterns), explain the architectural impact on database connection pools, and propose an optimized batching/joining solution.",
     examples:
       "Code Review Criteria:\n1. Identify the N+1 loop executing database queries per array item.\n2. Discuss database connection exhaustion and latency overhead.\n3. Refactor using IN clause batching, SQL JOINs, or DataLoaders.",
+    hints: [
+      "Per-item database queries inside for-loop (N+1 query anti-pattern).",
+      "Connection pool exhaustion under concurrent user traffic.",
+      "Refactoring opportunity: Use SQL JOINs, IN ($1, $2...) batching, or DataLoaders."
+    ],
     starterCode: {
       javascript: `// Service handler fetching active user profiles and their recent orders
 async function getUserDashboardData(userIds) {
   const users = [];
 
-  // Query 1: Fetch user records
   for (const id of userIds) {
     const user = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-    
-    // N+1 Queries: Fetch orders for each user inside loop
     const orders = await db.query('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [id]);
-    
-    // N+1 Queries: Fetch settings for each user inside loop
     const settings = await db.query('SELECT * FROM user_settings WHERE user_id = $1', [id]);
 
     users.push({
@@ -566,14 +567,9 @@ interface UserSettings { userId: string; theme: string; }
 async function getUserDashboardData(userIds: string[]) {
   const users = [];
 
-  // Query 1: Fetch user records
   for (const id of userIds) {
     const user = await db.query<User>('SELECT * FROM users WHERE id = $1', [id]);
-    
-    // N+1 Queries: Fetch orders for each user inside loop
     const orders = await db.query<Order[]>('SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [id]);
-    
-    // N+1 Queries: Fetch settings for each user inside loop
     const settings = await db.query<UserSettings>('SELECT * FROM user_settings WHERE user_id = $1', [id]);
 
     users.push({
@@ -598,16 +594,19 @@ async function getUserDashboardData(userIds: string[]) {
       "Review the following payment notification pipeline. Identify problematic async behavior, missing error handling, floating unawaited promises, and failure propagation issues.",
     examples:
       "Code Review Criteria:\n1. Spot floating promises missing await/catch.\n2. Identify swallowed errors in try/catch blocks.\n3. Discuss unhandled rejection crashes in Node.js runtime.",
+    hints: [
+      "auditLogger.logTransaction promise is not awaited (floating promise / unhandled rejection).",
+      "Array.prototype.forEach with async callback does not wait for item processing.",
+      "catch block swallows the error silently and returns success status fallback."
+    ],
     starterCode: {
       javascript: `// Background job processing webhook notifications
 async function processWebhookPayment(payload) {
   try {
     const payment = await verifyPaymentSignature(payload);
 
-    // BUG 1: Floating promise - not awaited, errors will be lost!
     auditLogger.logTransaction({ id: payment.id, amount: payment.amount });
 
-    // BUG 2: Async function called without await inside forEach
     payload.items.forEach(async (item) => {
       await updateInventoryStock(item.id, item.qty);
       await sendReceiptEmail(payment.customerEmail, item);
@@ -615,7 +614,6 @@ async function processWebhookPayment(payload) {
 
     return { status: "processed" };
   } catch (err) {
-    // BUG 3: Swallowing error silently and returning success fallback!
     console.log("Something went wrong:", err);
     return { status: "processed" };
   }
@@ -628,10 +626,8 @@ async function processWebhookPayment(payload: WebhookPayload) {
   try {
     const payment = await verifyPaymentSignature(payload);
 
-    // BUG 1: Floating promise - not awaited, errors will be lost!
     auditLogger.logTransaction({ id: payment.id, amount: payment.amount });
 
-    // BUG 2: Async function called without await inside forEach
     payload.items.forEach(async (item) => {
       await updateInventoryStock(item.id, item.qty);
       await sendReceiptEmail(payment.customerEmail, item);
@@ -639,7 +635,6 @@ async function processWebhookPayment(payload: WebhookPayload) {
 
     return { status: "processed" };
   } catch (err) {
-    // BUG 3: Swallowing error silently and returning success fallback!
     console.log("Something went wrong:", err);
     return { status: "processed" };
   }
@@ -657,23 +652,24 @@ async function processWebhookPayment(payload: WebhookPayload) {
       "Review the following wallet balance transfer handler. Identify how concurrent operations produce inconsistent state, explain the race condition window, and refactor using atomic operations or database transactions.",
     examples:
       "Code Review Criteria:\n1. Identify read-modify-write pattern vulnerable to race conditions.\n2. Explain double-spending or negative balance scenarios under high concurrency.\n3. Implement atomic SQL transactions or locking mechanisms.",
+    hints: [
+      "Read-modify-write pattern vulnerable to race conditions under concurrent requests.",
+      "Delay between reading sender balance and writing new balance permits double-spending.",
+      "Fix using atomic database updates (UPDATE users SET balance = balance - X) or SQL transactions with FOR UPDATE row locks."
+    ],
     starterCode: {
       javascript: `// Account balance transfer service
 async function transferFunds(senderId, receiverId, amount) {
-  // Read sender balance
   const sender = await db.findUser(senderId);
   
   if (sender.balance < amount) {
     throw new Error("Insufficient funds");
   }
 
-  // Simulate network delay between read and write
   await new Promise(resolve => setTimeout(resolve, 50));
 
-  // Read receiver balance
   const receiver = await db.findUser(receiverId);
 
-  // Vulnerable non-atomic updates
   const newSenderBalance = sender.balance - amount;
   const newReceiverBalance = receiver.balance + amount;
 
@@ -685,20 +681,16 @@ async function transferFunds(senderId, receiverId, amount) {
 `,
       typescript: `// Account balance transfer service
 async function transferFunds(senderId: string, receiverId: string, amount: number) {
-  // Read sender balance
   const sender = await db.findUser(senderId);
   
   if (sender.balance < amount) {
     throw new Error("Insufficient funds");
   }
 
-  // Simulate network delay between read and write
   await new Promise(resolve => setTimeout(resolve, 50));
 
-  // Read receiver balance
   const receiver = await db.findUser(receiverId);
 
-  // Vulnerable non-atomic updates
   const newSenderBalance = sender.balance - amount;
   const newReceiverBalance = receiver.balance + amount;
 
@@ -720,22 +712,24 @@ async function transferFunds(senderId: string, receiverId: string, amount: numbe
       "Review the following WebSocket stream manager and query cache. Identify why process memory grows continuously over time, locate uncleaned event listeners/timers, and propose a leak-free implementation.",
     examples:
       "Code Review Criteria:\n1. Identify event listeners registered per request without cleanup.\n2. Spot unbounded global in-memory cache objects.\n3. Fix using WeakMap, cache eviction (LRU), or proper unsubscription.",
+    hints: [
+      "globalBus.on('system_broadcast', ...) listener registered per socket connection without off() on close.",
+      "queryCache object grows indefinitely without key eviction or TTL expiry.",
+      "setInterval timer created per connection without clearInterval on socket disconnect."
+    ],
     starterCode: {
       javascript: `const EventEmitter = require('events');
 const globalBus = new EventEmitter();
 
-// Unbounded global query cache
 const queryCache = {};
 
 function handleClientConnection(socket, req) {
   const userId = req.headers['x-user-id'];
 
-  // BUG 1: Adding event listener per connection without removal on socket close!
   globalBus.on('system_broadcast', (msg) => {
     socket.send(JSON.stringify({ type: 'broadcast', data: msg }));
   });
 
-  // BUG 2: Indefinite cache growth - never evicted or garbage collected!
   socket.on('query', async (queryStr) => {
     if (!queryCache[queryStr]) {
       queryCache[queryStr] = await runHeavyQuery(queryStr);
@@ -743,7 +737,6 @@ function handleClientConnection(socket, req) {
     socket.send(JSON.stringify(queryCache[queryStr]));
   });
 
-  // BUG 3: Timer interval created without clearInterval on disconnect!
   setInterval(() => {
     socket.send(JSON.stringify({ ping: Date.now() }));
   }, 5000);
@@ -752,18 +745,15 @@ function handleClientConnection(socket, req) {
       typescript: `import EventEmitter from 'events';
 const globalBus = new EventEmitter();
 
-// Unbounded global query cache
 const queryCache: Record<string, any> = {};
 
 function handleClientConnection(socket: any, req: any) {
   const userId = req.headers['x-user-id'];
 
-  // BUG 1: Adding event listener per connection without removal on socket close!
   globalBus.on('system_broadcast', (msg) => {
     socket.send(JSON.stringify({ type: 'broadcast', data: msg }));
   });
 
-  // BUG 2: Indefinite cache growth - never evicted or garbage collected!
   socket.on('query', async (queryStr: string) => {
     if (!queryCache[queryStr]) {
       queryCache[queryStr] = await runHeavyQuery(queryStr);
@@ -771,7 +761,6 @@ function handleClientConnection(socket: any, req: any) {
     socket.send(JSON.stringify(queryCache[queryStr]));
   });
 
-  // BUG 3: Timer interval created without clearInterval on disconnect!
   setInterval(() => {
     socket.send(JSON.stringify({ ping: Date.now() }));
   }, 5000);
@@ -789,21 +778,23 @@ function handleClientConnection(socket: any, req: any) {
       "Review the following search API route handler. Identify unnecessary work, missing database pagination, over-fetching raw data, and security exposures.",
     examples:
       "Code Review Criteria:\n1. Identify fetching full table without SQL OFFSET/LIMIT.\n2. Spot in-memory filtering of large datasets.\n3. Remove sensitive user password hashes from JSON response.",
+    hints: [
+      "SELECT * FROM users fetches entire database into RAM instead of using SQL WHERE clauses.",
+      "In-memory Array.prototype.filter on large datasets causes severe CPU/RAM latency.",
+      "Missing pagination LIMIT/OFFSET parameters returning massive payloads.",
+      "Security flaw: Returns raw password_hash and internal security tokens to API clients."
+    ],
     starterCode: {
       javascript: `// API route GET /api/users/search?q=name
 async function searchUsersHandler(req, res) {
   const searchQuery = req.query.q || "";
 
-  // BUG 1: Fetching ENTIRE database of 100,000+ users into RAM!
   const allUsers = await db.query('SELECT * FROM users');
 
-  // BUG 2: Filtering in JS memory instead of database WHERE clause
   const matchedUsers = allUsers.filter(u => 
     u.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // BUG 3: No pagination limit - returns massive payload
-  // BUG 4: Returns raw password_hash and internal tokens to client!
   return res.json({
     total: matchedUsers.length,
     users: matchedUsers
@@ -814,16 +805,12 @@ async function searchUsersHandler(req, res) {
 async function searchUsersHandler(req: any, res: any) {
   const searchQuery = (req.query.q as string) || "";
 
-  // BUG 1: Fetching ENTIRE database of 100,000+ users into RAM!
   const allUsers = await db.query('SELECT * FROM users');
 
-  // BUG 2: Filtering in JS memory instead of database WHERE clause
   const matchedUsers = allUsers.filter((u: any) => 
     u.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // BUG 3: No pagination limit - returns massive payload
-  // BUG 4: Returns raw password_hash and internal tokens to client!
   return res.json({
     total: matchedUsers.length,
     users: matchedUsers
@@ -842,13 +829,17 @@ async function searchUsersHandler(req: any, res: any) {
       "Review the following batch notification dispatcher. Identify why firing thousands of HTTP requests with unrestricted `Promise.all()` leads to socket exhaustion, memory spikes, and API rate limit bans. Refactor with controlled concurrency.",
     examples:
       "Code Review Criteria:\n1. Identify unrestricted Promise.all on unbounded array.\n2. Discuss OS file descriptor / socket exhaustion limits.\n3. Refactor using p-limit, chunking, or custom concurrency pool.",
+    hints: [
+      "Unrestricted Promise.all maps over 10,000 items simultaneously.",
+      "Fires thousands of concurrent HTTP requests causing OS file descriptor / socket hangup errors.",
+      "Triggers 429 Rate Limit bans from upstream email providers.",
+      "Fix using p-limit, chunking, or a concurrency pool."
+    ],
     starterCode: {
       javascript: `// Batch newsletter dispatcher
 async function dispatchBulkNotifications(subscribers, message) {
   console.log(\`Starting dispatch to \${subscribers.length} subscribers...\`);
 
-  // BUG: Firing 10,000 simultaneous HTTP requests at once!
-  // Causes Socket Hangup, ECONNRESET, and 429 Rate Limits
   const results = await Promise.all(
     subscribers.map(sub => 
       sendEmailViaSendgrid(sub.email, message.subject, message.body)
@@ -865,8 +856,6 @@ interface Message { subject: string; body: string; }
 async function dispatchBulkNotifications(subscribers: Subscriber[], message: Message) {
   console.log(\`Starting dispatch to \${subscribers.length} subscribers...\`);
 
-  // BUG: Firing 10,000 simultaneous HTTP requests at once!
-  // Causes Socket Hangup, ECONNRESET, and 429 Rate Limits
   const results = await Promise.all(
     subscribers.map(sub => 
       sendEmailViaSendgrid(sub.email, message.subject, message.body)
@@ -888,6 +877,12 @@ async function dispatchBulkNotifications(subscribers: Subscriber[], message: Mes
       "Review the following TypeScript data mapper. Identify type safety flaws, excessive `any` usage, unsafe type assertions (`as any`), and weak interfaces. Refactor for strict type safety.",
     examples:
       "Code Review Criteria:\n1. Identify unsafe type casting `as any` bypassing compiler checks.\n2. Replace implicit `any` parameters with generics or union types.\n3. Add type guards for runtime validation.",
+    hints: [
+      "Indiscriminate use of 'any' type parameters disabling TypeScript compiler checks.",
+      "Unsafe type assertions (data as any, item.id as string) hiding runtime schema bugs.",
+      "JSON.parse on metadata without type validation or error handling.",
+      "Fix by defining strict interface definitions and type guards."
+    ],
     starterCode: {
       javascript: `// Unsafe data normalization pipeline
 function processApiResponse(data) {
@@ -904,14 +899,12 @@ function processApiResponse(data) {
 `,
       typescript: `// Unsafe data normalization pipeline
 function processApiResponse(data: any): any {
-  // BUG 1: Indiscriminate 'as any' casting bypasses TS checks
   const items = (data as any).items;
 
   const result = items.map((item: any) => {
     return {
       id: item.id as string,
       title: item.title || "Untitled",
-      // BUG 2: Potential runtime crash if metadata is not JSON string
       meta: (item as any).metadata ? JSON.parse((item as any).metadata) : {}
     };
   });
@@ -931,38 +924,37 @@ function processApiResponse(data: any): any {
       "Review the following document sharing API endpoint. Identify the critical security flaw (Insecure Direct Object Reference - IDOR), explain how an attacker could exploit it, and implement proper authorization checks.",
     examples:
       "Code Review Criteria:\n1. Identify missing tenant/user ownership verification.\n2. Explain IDOR vulnerability where any user can access another's private files.\n3. Add authorization check against session user ID.",
+    hints: [
+      "IDOR (Insecure Direct Object Reference) security vulnerability.",
+      "Fetches document by URL parameter ID without verifying document.userId === currentUser.id.",
+      "Allows any logged-in user to view private documents belonging to other accounts."
+    ],
     starterCode: {
       javascript: `// GET /api/documents/:documentId
 async function getDocumentHandler(req, res) {
-  // Authenticated user from JWT middleware
   const currentUser = req.user; // { id: "user_123", role: "member" }
   const documentId = req.params.documentId;
 
-  // BUG: Fetches document by ID without checking if document belongs to currentUser!
   const document = await db.query('SELECT * FROM documents WHERE id = $1', [documentId]);
 
   if (!document) {
     return res.status(404).json({ error: "Document not found" });
   }
 
-  // Any authenticated user can read ANY document in the database!
   return res.json(document);
 }
 `,
       typescript: `// GET /api/documents/:documentId
 async function getDocumentHandler(req: any, res: any) {
-  // Authenticated user from JWT middleware
   const currentUser = req.user; // { id: "user_123", role: "member" }
   const documentId = req.params.documentId;
 
-  // BUG: Fetches document by ID without checking if document belongs to currentUser!
   const document = await db.query('SELECT * FROM documents WHERE id = $1', [documentId]);
 
   if (!document) {
     return res.status(404).json({ error: "Document not found" });
   }
 
-  // Any authenticated user can read ANY document in the database!
   return res.json(document);
 }
 `,
@@ -978,19 +970,22 @@ async function getDocumentHandler(req: any, res: any) {
       "Review the following checkout payment gateway integration. Identify security logging violations, swallowed errors, lack of contextual logging, and leaking internal database stack traces to clients.",
     examples:
       "Code Review Criteria:\n1. Identify PII / PCI compliance violation (logging raw credit card details).\n2. Fix swallowed error blocks.\n3. Stop leaking internal stack traces in HTTP responses.",
+    hints: [
+      "PCI-DSS / PII security violation: Logging cleartext credit card numbers and CVC to stdout.",
+      "Leaking internal database stack traces (err.stack) in HTTP 500 error responses.",
+      "Missing structured JSON logging format and request correlation IDs."
+    ],
     starterCode: {
       javascript: `// Checkout billing processor
 async function processBillingCheckout(req, res) {
   const { creditCardNumber, cvc, amount, userId } = req.body;
 
-  // BUG 1: Logging sensitive PCI credit card details in cleartext stdout!
   console.log(\`Processing payment for user \${userId}: card=\${creditCardNumber}, cvc=\${cvc}\`);
 
   try {
     const charge = await stripe.charges.create({ amount, card: creditCardNumber });
     return res.json({ success: true, chargeId: charge.id });
   } catch (err) {
-    // BUG 2: Leaking internal system stack traces & SQL errors to public clients!
     return res.status(500).json({
       error: "Billing failure",
       debugStackTrace: err.stack,
@@ -1003,14 +998,12 @@ async function processBillingCheckout(req, res) {
 async function processBillingCheckout(req: any, res: any) {
   const { creditCardNumber, cvc, amount, userId } = req.body;
 
-  // BUG 1: Logging sensitive PCI credit card details in cleartext stdout!
   console.log(\`Processing payment for user \${userId}: card=\${creditCardNumber}, cvc=\${cvc}\`);
 
   try {
     const charge = await stripe.charges.create({ amount, card: creditCardNumber });
     return res.json({ success: true, chargeId: charge.id });
   } catch (err: any) {
-    // BUG 2: Leaking internal system stack traces & SQL errors to public clients!
     return res.status(500).json({
       error: "Billing failure",
       debugStackTrace: err.stack,
@@ -1031,6 +1024,11 @@ async function processBillingCheckout(req: any, res: any) {
       "Review the following user name formatting module. Identify unnecessary design abstractions, premature generalization, and refactor it into a clean, simple, readable function.",
     examples:
       "Code Review Criteria:\n1. Identify overengineered AbstractFactory/Strategy wrappers for a 1-line string format.\n2. Discuss cognitive load, maintainability, and YAGNI principle.\n3. Refactor to a clean single-responsibility function.",
+    hints: [
+      "AbstractFactory and Strategy pattern wrappers used for a simple 1-line string format.",
+      "Violates YAGNI (You Aren't Gonna Need It) and KISS software design principles.",
+      "Adds high cognitive load and unnecessary runtime object allocations."
+    ],
     starterCode: {
       javascript: `// Formatting a user's display name: "FirstName LastName"
 class AbstractNameFormatterFactory {
