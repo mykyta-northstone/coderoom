@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
-import { PROBLEMS, Language, Difficulty, Problem } from "@/data/problems";
+import { PROBLEMS, Language, Problem } from "@/data/problems";
 import { trackEvent } from "@/lib/analytics";
 import { PlusCircle, CheckCircle2, ArrowRight, PenTool, BookOpen } from "lucide-react";
 
@@ -16,10 +16,8 @@ function CreateInterviewForm() {
   const [language, setLanguage] = useState<Language>("typescript");
   const [problemId, setProblemId] = useState<string>(initialProblemId);
 
-  // Custom problem form state
+  // Custom problem form state (simplified)
   const [customTitle, setCustomTitle] = useState("");
-  const [customDifficulty, setCustomDifficulty] = useState<Difficulty>("medium");
-  const [customCategory, setCustomCategory] = useState("Custom Task");
   const [customDescription, setCustomDescription] = useState("");
   const [customExamples, setCustomExamples] = useState("");
   const [customStarterCode, setCustomStarterCode] = useState("");
@@ -49,8 +47,8 @@ function CreateInterviewForm() {
         const customProb: Problem = {
           id: `custom-${Date.now()}`,
           title: customTitle.trim(),
-          difficulty: customDifficulty,
-          category: customCategory.trim() || "Custom Task",
+          difficulty: "medium",
+          category: "Custom Task",
           description: customDescription.trim(),
           examples: customExamples.trim() || "",
           starterCode: {
@@ -229,7 +227,7 @@ function CreateInterviewForm() {
         </div>
       )}
 
-      {/* Custom Task Mode */}
+      {/* Custom Task Mode (Simplified) */}
       {mode === "custom" && (
         <div className="space-y-4">
           <label className="block text-xs font-bold text-[#c4c4c4] uppercase tracking-wider">
@@ -249,36 +247,6 @@ function CreateInterviewForm() {
                 onChange={(e) => setCustomTitle(e.target.value)}
                 className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-4 py-2.5 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565]"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-semibold text-[#9d9d9d] mb-1">
-                  Difficulty
-                </label>
-                <select
-                  value={customDifficulty}
-                  onChange={(e) => setCustomDifficulty(e.target.value as Difficulty)}
-                  className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#cef565]"
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-[#9d9d9d] mb-1">
-                  Category / Tag
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. System Design / Domain Logic"
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                  className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-3 py-2.5 text-xs text-white placeholder-[#6a6a6a] focus:outline-none focus:border-[#cef565]"
-                />
-              </div>
             </div>
 
             <div>
