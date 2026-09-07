@@ -423,15 +423,41 @@ function CreateInterviewForm() {
               <label className="block text-[11px] font-semibold text-[#9d9d9d] mb-1">
                 Difficulty Level
               </label>
-              <select
-                value={customDifficulty}
-                onChange={(e) => setCustomDifficulty(e.target.value as Difficulty)}
-                className="w-full bg-[#141414] border border-[#2e2e2e] rounded-[14px] px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#cef565]"
-              >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCustomDifficulty("easy")}
+                  className={`py-2.5 px-3 rounded-[14px] text-xs font-bold transition-all border ${
+                    customDifficulty === "easy"
+                      ? "bg-[#cef565]/15 border-[#cef565] text-[#cef565] shadow-md"
+                      : "bg-[#141414] border-[#2e2e2e] text-[#9d9d9d] hover:text-white hover:border-[#3e3e3e]"
+                  }`}
+                >
+                  Easy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomDifficulty("medium")}
+                  className={`py-2.5 px-3 rounded-[14px] text-xs font-bold transition-all border ${
+                    customDifficulty === "medium"
+                      ? "bg-amber-500/15 border-amber-500 text-amber-400 shadow-md"
+                      : "bg-[#141414] border-[#2e2e2e] text-[#9d9d9d] hover:text-white hover:border-[#3e3e3e]"
+                  }`}
+                >
+                  Medium
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomDifficulty("hard")}
+                  className={`py-2.5 px-3 rounded-[14px] text-xs font-bold transition-all border ${
+                    customDifficulty === "hard"
+                      ? "bg-[#f2796b]/15 border-[#f2796b] text-[#f2796b] shadow-md"
+                      : "bg-[#141414] border-[#2e2e2e] text-[#9d9d9d] hover:text-white hover:border-[#3e3e3e]"
+                  }`}
+                >
+                  Hard
+                </button>
+              </div>
             </div>
 
             <div>

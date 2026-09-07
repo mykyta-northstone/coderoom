@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { PROBLEMS, Problem, Difficulty } from "@/data/problems";
-import { Search, PlusCircle, ChevronRight, Filter, ArrowUpDown } from "lucide-react";
+import { Search, PlusCircle, ChevronRight, Filter, ArrowUpDown, ChevronDown } from "lucide-react";
 
 export default function ProblemsPage() {
   const [search, setSearch] = useState("");
@@ -148,12 +148,12 @@ export default function ProblemsPage() {
             </div>
 
             {/* Sort Dropdown */}
-            <div className="relative flex items-center bg-[#141414] border border-[#2e2e2e] rounded-full px-3 py-1 w-full sm:w-auto">
+            <div className="relative flex items-center bg-[#141414] border border-[#2e2e2e] rounded-full px-3 py-1.5 w-full sm:w-auto">
               <ArrowUpDown className="w-3.5 h-3.5 text-[#6a6a6a] mr-2 shrink-0" />
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as any)}
-                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer pr-2"
+                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer appearance-none pr-6"
               >
                 <option value="difficulty-asc" className="bg-[#1e1e1e] text-white">
                   Sort: Easy → Hard
@@ -165,6 +165,7 @@ export default function ProblemsPage() {
                   Sort: Alphabetical
                 </option>
               </select>
+              <ChevronDown className="w-3.5 h-3.5 text-[#9d9d9d] absolute right-2.5 pointer-events-none" />
             </div>
           </div>
         </div>
