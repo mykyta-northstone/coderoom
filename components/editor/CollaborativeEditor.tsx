@@ -195,19 +195,12 @@ export const CollaborativeEditor = forwardRef<CollaborativeEditorHandle, Collabo
       // Bind Yjs text to Monaco model
       const ytext = doc.getText("monaco");
 
-      const insertInitialIfNeeded = () => {
-        if (ytext.toString() === "" && initialCodeRef.current) {
+      // Only insert initial code if after Yjs sync the document is completely empty
+      provider.on("sync", (isSynced: boolean) => {
+        if (isSynced && ytext.toString() === "" && initialCodeRef.current) {
           ytext.insert(0, initialCodeRef.current);
         }
-      };
-
-      provider.on("sync", (isSynced: boolean) => {
-        if (isSynced) {
-          insertInitialIfNeeded();
-        }
       });
-
-      insertInitialIfNeeded();
 
       const model = editorRef.current.getModel();
 
