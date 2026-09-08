@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { Code2, PlusCircle, BookOpen } from "lucide-react";
+import Image from "next/image";
+import { PlusCircle, BookOpen } from "lucide-react";
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-[#141414]/90 backdrop-blur-md border-b border-[#2e2e2e]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center group-hover:border-[#cef565]/60 transition-all">
-            <Code2 className="w-5 h-5 text-[#cef565]" />
+          <div className="w-9 h-9 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center group-hover:border-[#cef565]/60 transition-all overflow-hidden relative">
+            <Image src="/icon.png" alt="Pairlet Logo" width={36} height={36} className="w-full h-full object-cover" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-white font-sans">
             Pair<span className="text-[#cef565]">let</span>

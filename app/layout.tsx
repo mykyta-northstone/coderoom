@@ -37,12 +37,19 @@ export const metadata: Metadata = {
     siteName: "Pairlet",
     locale: "en_US",
     type: "website",
+    images: [{ url: "/icon.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pairlet — Free Live Coding Interviews for JavaScript & TypeScript",
     description:
       "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
+    images: ["/icon.png"],
+  },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-icon.png",
   },
   robots: {
     index: true,

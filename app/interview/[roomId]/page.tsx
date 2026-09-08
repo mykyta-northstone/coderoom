@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Problem, Difficulty } from "@/data/problems";
 import { trackEvent } from "@/lib/analytics";
@@ -378,8 +379,8 @@ export default function InterviewRoomPage({
       <header className="h-14 shrink-0 px-4 bg-[#141414]/90 backdrop-blur-md flex items-center justify-between border-b border-[#2e2e2e]">
         <div className="flex items-center space-x-4">
           <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-7 h-7 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center">
-              <Code2 className="w-4 h-4 text-[#cef565]" />
+            <div className="w-7 h-7 rounded-xl bg-[#cef565]/15 border border-[#cef565]/30 flex items-center justify-center overflow-hidden relative">
+              <Image src="/icon.png" alt="Pairlet Logo" width={28} height={28} className="w-full h-full object-cover" />
             </div>
             <span className="text-base font-extrabold tracking-tight text-white hidden sm:inline">
               Pair<span className="text-[#cef565]">let</span>
