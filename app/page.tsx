@@ -541,8 +541,31 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="py-8 border-t border-[#2e2e2e] text-center text-xs text-[#6a6a6a]">
-        pairlet.dev — Minimal Free Live Coding Interview Platform for JS & TS
+      <footer className="py-10 border-t border-[#2e2e2e] bg-[#0f0f0f] text-xs text-[#9d9d9d]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222] pb-6">
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold text-white">
+                Pair<span className="text-[#cef565]">let</span>.dev
+              </span>
+              <p className="text-xs text-[#6a6a6a]">
+                Minimal Free Live Coding Interview Platform for JS & TS
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs font-semibold">
+              <Link href="/problems" className="hover:text-[#cef565] transition-colors">Problems</Link>
+              <Link href="/blog" className="hover:text-[#cef565] transition-colors">Blog</Link>
+              <Link href="/blog/javascript" className="hover:text-[#cef565] transition-colors">JavaScript</Link>
+              <Link href="/blog/typescript" className="hover:text-[#cef565] transition-colors">TypeScript</Link>
+              <Link href="/blog/coding-interviews" className="hover:text-[#cef565] transition-colors">Coding Interviews</Link>
+              <Link href="/blog/technical-interviews" className="hover:text-[#cef565] transition-colors">Technical Interviews</Link>
+              <Link href="/blog/code-review" className="hover:text-[#cef565] transition-colors">Code Review</Link>
+            </div>
+          </div>
+          <div className="text-center text-[11px] text-[#6a6a6a]">
+            © {new Date().getFullYear()} pairlet.dev — All rights reserved.
+          </div>
+        </div>
       </footer>
     </div>
   );

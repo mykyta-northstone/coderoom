@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { PlusCircle, BookOpen } from "lucide-react";
+import { PlusCircle, BookOpen, FileText } from "lucide-react";
 
 export function Navbar() {
   return (
@@ -23,6 +23,13 @@ export function Navbar() {
           >
             <BookOpen className="w-4 h-4 text-[#9d9d9d]" />
             <span>Problems</span>
+          </Link>
+          <Link
+            href="/blog"
+            className="flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-[#c4c4c4] hover:text-white hover:bg-[#222222] rounded-full transition-all border border-transparent hover:border-[#2e2e2e]"
+          >
+            <FileText className="w-4 h-4 text-[#9d9d9d]" />
+            <span>Blog</span>
           </Link>
           <Link
             href="/interview/new"
