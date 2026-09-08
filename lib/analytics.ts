@@ -11,7 +11,7 @@ export function trackEvent(event: AnalyticsEvent, payload?: Record<string, any>)
   if (typeof window === "undefined") return;
 
   // Console output for local dev inspection
-  console.log(`[CodeRoom Analytics] ${event}`, payload || "");
+  console.log(`[Pairlet Analytics] ${event}`, payload || "");
 
   // Google Analytics 4 (gtag.js) event dispatching
   if (typeof (window as any).gtag === "function") {

@@ -107,14 +107,14 @@ export default function InterviewRoomPage({
           setIsExpired(true);
         }
 
-        const savedToken = sessionStorage.getItem(`coderoom_interviewer_${roomId}`);
+        const savedToken = sessionStorage.getItem(`pairlet_interviewer_${roomId}`);
         if (savedToken) {
           setUserRole("interviewer");
-          const savedInterviewerName = sessionStorage.getItem(`coderoom_interviewer_name_${roomId}`);
+          const savedInterviewerName = sessionStorage.getItem(`pairlet_interviewer_name_${roomId}`);
           setUserName(savedInterviewerName || "Interviewer");
           trackEvent("interview_started", { roomId, role: "interviewer" });
         } else {
-          const savedCandidateName = sessionStorage.getItem(`coderoom_candidate_name_${roomId}`);
+          const savedCandidateName = sessionStorage.getItem(`pairlet_candidate_name_${roomId}`);
           if (savedCandidateName) {
             setUserRole("candidate");
             setUserName(savedCandidateName);
@@ -173,13 +173,13 @@ export default function InterviewRoomPage({
     const name = joinNameInput.trim();
     if (userRole === "interviewer") {
       setUserName(name);
-      sessionStorage.setItem(`coderoom_interviewer_name_${roomId}`, name);
+      sessionStorage.setItem(`pairlet_interviewer_name_${roomId}`, name);
       setShowJoinModal(false);
       trackEvent("interview_started", { roomId, role: "interviewer", name });
     } else {
       setUserRole("candidate");
       setUserName(name);
-      sessionStorage.setItem(`coderoom_candidate_name_${roomId}`, name);
+      sessionStorage.setItem(`pairlet_candidate_name_${roomId}`, name);
       setShowJoinModal(false);
       trackEvent("candidate_joined", { roomId, name });
     }
@@ -202,7 +202,7 @@ export default function InterviewRoomPage({
 
     const interviewerToken =
       typeof window !== "undefined"
-        ? sessionStorage.getItem(`coderoom_interviewer_${roomId}`) || ""
+        ? sessionStorage.getItem(`pairlet_interviewer_${roomId}`) || ""
         : "";
 
     try {
@@ -382,7 +382,7 @@ export default function InterviewRoomPage({
               <Code2 className="w-4 h-4 text-[#cef565]" />
             </div>
             <span className="text-base font-extrabold tracking-tight text-white hidden sm:inline">
-              Code<span className="text-[#cef565]">Room</span>
+              Pair<span className="text-[#cef565]">let</span>
             </span>
           </Link>
 

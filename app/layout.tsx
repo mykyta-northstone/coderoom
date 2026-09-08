@@ -4,19 +4,21 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
-const siteUrl = "https://coderoom-delta.vercel.app";
+const siteUrl = "https://pairlet.dev";
 const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-RMVP37GX3L";
 const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
-    template: "%s | CodeRoom",
+    default: "Pairlet — Free Live Coding Interviews for JavaScript & TypeScript",
+    template: "%s | Pairlet",
   },
   description:
-    "Create a live coding room, share the link, and interview candidates in real time. Free for JavaScript & TypeScript. No candidate account required.",
+    "Create a live coding room, share the link, and interview candidates in real time with Pairlet. Free for JavaScript & TypeScript. No candidate account required.",
   keywords: [
+    "Pairlet",
+    "pairlet.dev",
     "live coding interview",
     "JavaScript interview room",
     "TypeScript coding interview",
@@ -25,20 +27,20 @@ export const metadata: Metadata = {
     "Yjs Monaco editor",
     "free live coding",
   ],
-  authors: [{ name: "CodeRoom" }],
-  creator: "CodeRoom",
+  authors: [{ name: "Pairlet" }],
+  creator: "Pairlet",
   openGraph: {
-    title: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+    title: "Pairlet — Free Live Coding Interviews for JavaScript & TypeScript",
     description:
       "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
     url: siteUrl,
-    siteName: "CodeRoom",
+    siteName: "Pairlet",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CodeRoom — Free Live Coding Interviews for JavaScript & TypeScript",
+    title: "Pairlet — Free Live Coding Interviews for JavaScript & TypeScript",
     description:
       "Create a live coding room, share the link, and interview candidates in real time. No candidate account required.",
   },
@@ -59,7 +61,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "CodeRoom",
+    name: "Pairlet",
     url: siteUrl,
     description:
       "Free live coding interviews for JavaScript & TypeScript. Create a room, share the link, and interview candidates in real time.",

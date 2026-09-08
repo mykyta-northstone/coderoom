@@ -114,7 +114,7 @@ export default function LandingPage() {
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-[#cef565]" />
                 <span className="ml-3 text-xs font-mono font-semibold text-[#9d9d9d]">
-                  coderoom.app/interview/a9jxXSUK5
+                  pairlet.dev/interview/a9jxXSUK5
                 </span>
               </div>
 
@@ -236,18 +236,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* WHY CODEROOM? COMPARISON SECTION */}
+        {/* WHY PAIRLET? COMPARISON SECTION */}
         <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative">
           <div className="max-w-3xl mx-auto space-y-3 mb-16">
             <span className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#cef565]/10 border border-[#cef565]/25 text-xs font-bold text-[#cef565] uppercase tracking-wider">
               <Zap className="w-3.5 h-3.5 fill-current" />
-              <span>Why Interviewers Switch to CodeRoom</span>
+              <span>Why Interviewers Switch to Pairlet</span>
             </span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
               Ditch candidate accounts & $250/mo subscriptions
             </h2>
             <p className="text-sm text-[#9d9d9d] max-w-xl mx-auto">
-              Traditional coding tools force candidates through frustrating signups and charge bloated fees. CodeRoom is fast, free, and zero-friction.
+              Traditional coding tools force candidates through frustrating signups and charge bloated fees. Pairlet is fast, free, and zero-friction.
             </p>
           </div>
 
@@ -321,7 +321,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* CodeRoom Advantage */}
+            {/* Pairlet Advantage */}
             <div className="p-7 sm:p-9 rounded-[32px] bg-gradient-to-b from-[#1f2617] via-[#1a1e16] to-[#161616] border border-[#cef565]/50 space-y-6 relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-[#cef565]/10">
               {/* Glowing Pill Tag */}
               <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#cef565] text-[#131313] text-[10px] font-extrabold uppercase tracking-wider shadow-md">
@@ -335,7 +335,7 @@ export default function LandingPage() {
                       Modern Standard
                     </span>
                     <h3 className="text-xl font-extrabold text-white">
-                      Code<span className="text-[#cef565]">Room</span>
+                      Pair<span className="text-[#cef565]">let</span>
                     </h3>
                   </div>
                   <div className="w-9 h-9 rounded-full bg-[#cef565] text-[#131313] flex items-center justify-center shrink-0 shadow-lg shadow-[#cef565]/20">
@@ -542,7 +542,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="py-8 border-t border-[#2e2e2e] text-center text-xs text-[#6a6a6a]">
-        CodeRoom — Minimal Free Live Coding Interview Platform for JS & TS
+        pairlet.dev — Minimal Free Live Coding Interview Platform for JS & TS
       </footer>
     </div>
   );

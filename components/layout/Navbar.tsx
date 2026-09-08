@@ -10,7 +10,8 @@ export function Navbar() {
             <Code2 className="w-5 h-5 text-[#cef565]" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-white font-sans">
-            Code<span className="text-[#cef565]">Room</span>
+            Pair<span className="text-[#cef565]">let</span>
+            <span className="text-xs font-mono text-[#9d9d9d] font-normal ml-0.5">.dev</span>
           </span>
         </Link>
 

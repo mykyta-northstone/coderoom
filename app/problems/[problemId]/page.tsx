@@ -21,7 +21,7 @@ export async function generateMetadata({
 
   if (!problem) {
     return {
-      title: "Problem Not Found — CodeRoom",
+      title: "Problem Not Found — Pairlet",
     };
   }
 
@@ -35,8 +35,8 @@ export async function generateMetadata({
       title,
       description,
       type: "article",
-      url: `https://coderoom-delta.vercel.app/problems/${problem.id}`,
-      siteName: "CodeRoom",
+      url: `https://pairlet.dev/problems/${problem.id}`,
+      siteName: "Pairlet",
     },
     twitter: {
       card: "summary_large_image",
@@ -44,7 +44,7 @@ export async function generateMetadata({
       description,
     },
     alternates: {
-      canonical: `https://coderoom-delta.vercel.app/problems/${problem.id}`,
+      canonical: `https://pairlet.dev/problems/${problem.id}`,
     },
   };
 }
@@ -71,7 +71,7 @@ export default async function ProblemDetailPage({
     suggestedAnswer: [
       {
         "@type": "Answer",
-        text: `Starter template provided for JavaScript and TypeScript. Use CodeRoom to conduct live coding interviews with ${problem.title}.`,
+        text: `Starter template provided for JavaScript and TypeScript. Use Pairlet to conduct live coding interviews with ${problem.title}.`,
       },
     ],
   };

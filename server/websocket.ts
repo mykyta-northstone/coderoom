@@ -190,7 +190,7 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocketServer({ server });
 
-console.log(`[CodeRoom WS & API] Server running on port ${PORT}`);
+console.log(`[Pairlet WS & API] Server running on port ${PORT}`);
 
 function getOrCreateRoomState(roomId: string): RoomState {
   let state = rooms.get(roomId);
@@ -299,7 +299,7 @@ wss.on("connection", (conn: WebSocket, req) => {
         awarenessProtocol.applyAwarenessUpdate(awareness, update, conn);
       }
     } catch (err) {
-      console.error("[CodeRoom WS] Error processing message:", err);
+      console.error("[Pairlet WS] Error processing message:", err);
     }
   });
 

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: coderoom-ws
+    name: pairlet-ws
     env: node
     buildCommand: npm install
     startCommand: npm run ws

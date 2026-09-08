@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/interview/"],
     },
-    sitemap: "https://coderoom-delta.vercel.app/sitemap.xml",
+    sitemap: "https://pairlet.dev/sitemap.xml",
   };
 }

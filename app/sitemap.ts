@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { PROBLEMS } from "@/data/problems";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://coderoom-delta.vercel.app";
+  const baseUrl = "https://pairlet.dev";
 
   const problemUrls: MetadataRoute.Sitemap = PROBLEMS.map((p) => ({
     url: `${baseUrl}/problems/${p.id}`,

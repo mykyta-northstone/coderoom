@@ -108,9 +108,9 @@ function CreateInterviewForm() {
       const interviewerToken = data.interviewerToken;
 
       if (typeof window !== "undefined") {
-        sessionStorage.setItem(`coderoom_interviewer_${roomId}`, interviewerToken);
+        sessionStorage.setItem(`pairlet_interviewer_${roomId}`, interviewerToken);
         if (interviewerName.trim()) {
-          sessionStorage.setItem(`coderoom_interviewer_name_${roomId}`, interviewerName.trim());
+          sessionStorage.setItem(`pairlet_interviewer_name_${roomId}`, interviewerName.trim());
         }
       }
 

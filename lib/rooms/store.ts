@@ -14,14 +14,14 @@ export type Room = {
 };
 
 const globalRoomStore = globalThis as unknown as {
-  codeRoomStore?: Map<string, Room>;
+  pairletRoomStore?: Map<string, Room>;
 };
 
-if (!globalRoomStore.codeRoomStore) {
-  globalRoomStore.codeRoomStore = new Map<string, Room>();
+if (!globalRoomStore.pairletRoomStore) {
+  globalRoomStore.pairletRoomStore = new Map<string, Room>();
 }
 
-const roomStore = globalRoomStore.codeRoomStore;
+const roomStore = globalRoomStore.pairletRoomStore;
 
 export function getBackendHttpUrl(): string | null {
   const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
@@ -60,7 +60,7 @@ export async function createRoom(
         return await res.json();
       }
     } catch (err) {
-      console.error("[CodeRoom Store] Failed to create room on backend:", err);
+      console.error("[Pairlet Store] Failed to create room on backend:", err);
     }
   }
 
@@ -96,7 +96,7 @@ export async function getRoom(id: string): Promise<Room | null> {
       }
       if (res.status === 404) return null;
     } catch (err) {
-      console.error("[CodeRoom Store] Failed to fetch room from backend:", err);
+      console.error("[Pairlet Store] Failed to fetch room from backend:", err);
     }
   }
 
@@ -120,7 +120,7 @@ export async function endRoom(id: string, interviewerToken: string): Promise<boo
       });
       if (res.ok) return true;
     } catch (err) {
-      console.error("[CodeRoom Store] Failed to end room on backend:", err);
+      console.error("[Pairlet Store] Failed to end room on backend:", err);
     }
   }
 
